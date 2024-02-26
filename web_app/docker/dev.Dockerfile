@@ -12,10 +12,10 @@ RUN python3 -m venv $POETRY_VENV \
 
 ENV PATH="${PATH}:${POETRY_VENV}/bin"
 
+COPY pyproject.toml .
+
 RUN mkdir /web_app/
 WORKDIR /web_app/
-
-COPY pyproject.toml .
 
 RUN poetry install --without test,admin
 
