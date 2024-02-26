@@ -165,14 +165,14 @@ LOGGING = {
         },
     },
     "loggers": {
-        # "django": {
-        #     "handlers": ["console", "file"],
-        #     "level": "INFO",
-        # },
-        "django.db.backends": {
-            "handlers": ["console"],
-            "level": "DEBUG",
+        "django": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
         },
+        # "django.db.backends": {
+        #     "handlers": ["console"],
+        #     "level": "DEBUG",
+        # },
     },
 }
 
