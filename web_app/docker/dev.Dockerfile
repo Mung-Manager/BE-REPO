@@ -19,8 +19,7 @@ RUN python3 -m venv $POETRY_VENV \
 ENV PATH="${PATH}:${POETRY_VENV}/bin"
 
 # Copy pyproject.toml and .env files
-COPY pyproject.toml .
-COPY .env.mung /web_app/
+COPY pyproject.toml .env.mung .
 
 # Set working directory
 WORKDIR /web_app/
