@@ -114,10 +114,10 @@ APPEND_SLASH = False
 
 # Static files (CSS, JavaScript, Images)
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATIC_URL = "/web_app/static/"
+STATIC_URL = "/web-app/static/"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/web_app/media/"
+MEDIA_URL = "/web-app/media/"
 
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ("djangorestframework_camel_case.render.CamelCaseJSONRenderer",),
