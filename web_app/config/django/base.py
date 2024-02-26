@@ -70,7 +70,7 @@ ASGI_APPLICATION = "config.asgi.application"
 if os.environ.get("GITHUB_WORKFLOW"):
     DATABASES = {
         "default": {
-            "ENGINE": "django.contrib.gis.db.backends.postgis",
+            "ENGINE": "django.db.backends.postgresql",
             "NAME": "github_actions",
             "USER": "postgres",
             "PASSWORD": "password",
