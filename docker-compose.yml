@@ -10,10 +10,12 @@ volumes:
 services:
   web_app:
     container_name: web_app
-    build: ./web_app/
+    build:
+      context: .
+      dockerfile: web_app/docker/dev.Dockerfile
     entrypoint: sh -c "poetry run python manage.py collectstatic --no-input && poetry run python manage.py migrate && poetry run gunicorn config.wsgi --workers=5 -b 0.0.0.0:8000"
     volumes:
-      - ./web_app/django/:/web_app/
+      - ./web_app/:/web_app/
       - /etc/localtime:/etc/localtime:ro
       - web_app_django_media:/web_app/media/
       - web_app_django_static:/web_app/static/
