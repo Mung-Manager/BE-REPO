@@ -25,9 +25,8 @@ COPY .env.mung /web_app/
 # Set working directory
 WORKDIR /web_app/
 
-# Clear Poetry cache and install dependencies
-RUN poetry cache clear --all \
-    && poetry install --without test,admin
+# Install dependencies
+RUN poetry install --without test,admin
 
 # Copy the rest of the application files
 COPY . /web_app/
