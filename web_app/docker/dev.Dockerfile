@@ -12,8 +12,8 @@ RUN python3 -m venv $POETRY_VENV \
 
 ENV PATH="${PATH}:${POETRY_VENV}/bin"
 
-RUN mkdir /app/
-WORKDIR /app/
+RUN mkdir /web_app/
+WORKDIR /web_app/
 
 COPY pyproject.toml .
 
