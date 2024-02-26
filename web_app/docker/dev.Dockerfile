@@ -17,6 +17,6 @@ WORKDIR /web_app/
 
 COPY pyproject.toml /web_app/
 
-RUN poetry install
+RUN poetry install --without test,admin
 
 COPY . /web_app/
