@@ -7,16 +7,16 @@ ENV POETRY_HOME=/opt/poetry
 ENV POETRY_VENV=/opt/poetry-venv
 
 RUN python3 -m venv $POETRY_VENV \
-	&& $POETRY_VENV/bin/pip install -U pip setuptools \
-	&& $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
+    && $POETRY_VENV/bin/pip install -U pip setuptools \
+    && $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
 
 ENV PATH="${PATH}:${POETRY_VENV}/bin"
 
-RUN mkdir /web_app
-WORKDIR /web_app
+RUN mkdir /web_app/
+WORKDIR /web_app/
 
-COPY pyproject.toml .
+COPY pyproject.toml /web_app/
 
 RUN poetry install
 
-COPY . /web_app
+COPY . /web_app/
