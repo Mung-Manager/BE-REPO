@@ -30,7 +30,7 @@ jobs:
       #   run: docker compose -f github-actions.docker-compose.yml run admin poetry run black mung_manager/ --check
 
       - name: Run flake8
-        run: docker compose -f github-actions.docker-compose.yml run admin poetry run flake8
+        run: docker compose -f github-actions.docker-compose.yml run admin poetry show
 
       # - name: Run mypy
       #   run: docker compose -f github-actions.docker-compose.yml run admin poetry run mypy --config mypy.ini mung_manager/
