@@ -1,0 +1,59 @@
+run-name: Deploy to AWS dev server by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    permissions:
+      users:
+        - saJaeHyukc
+
+jobs:
+  admin-test-and-fomat-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create env file
+        env:
+          DJANGO_TEST_ADMIN_ENV: ${{ secrets.DJANGO_TEST_ADMIN_ENV }}
+        run: |
+          touch .env.admin
+          echo "$DJANGO_TEST_ADMIN_ENV" >> .env.admin
+          mv .env.admin admin/
+
+      - name: Move setup.cfg
+        run: mv setup.cfg admin/
+
+      - name: Build docker
+        run: docker compose -f github-actions.docker-compose.yml build postgres admin
+
+      - name: Run isort
+        run: docker compose -f github-actions.docker-compose.yml run admin poetry run isort mung_manager/ --check
+
+      - name: Run black
+        run: docker compose -f github-actions.docker-compose.yml run admin poetry run black mung_manager/ --check
+
+      - name: Run flake8
+        run: docker compose -f github-actions.docker-compose.yml run admin poetry run flake8
+
+      - name: Run mypy
+        run: docker compose -f github-actions.docker-compose.yml run admin poetry run mypy --config mypy.ini mung_manager/
+
+      - name: Run tests
+        run: docker compose -f github-actions.docker-compose.yml run admin poetry run pytest --cov=mung_manager/ --cov-fail-under=80 tests/ -n 4
+
+  admin-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        needs: admin-test-and-fomat-lint
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          key: ${{ secrets.DEV_EC2_KEY }}
+          host: ${{ secrets.DEV_EC2_IP }}
+          username: ${{ secrets.DEV_EC2_NAME }}
+          port: ${{ secrets.DEV_EC2_PORT }}
+          script: |
+            cd ${{ secrets.DEV_EC2_PATH }}
+            git pull origin develop
+            sudo docker compose restart admin, nginx
