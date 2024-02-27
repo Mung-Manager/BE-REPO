@@ -44,10 +44,10 @@ jobs:
 
   admin-deploy:
     runs-on: ubuntu-latest
+    needs: admin-test-and-fomat-lint
     steps:
-      - name: Deploy
-        needs: admin-test-and-fomat-lint
-        uses: appleboy/ssh-action@v0.1.5
+      - name: Connect to SSH and Deploy
+        uses: appleboy/ssh-action@v1.0.3
         with:
           key: ${{ secrets.DEV_EC2_KEY }}
           host: ${{ secrets.DEV_EC2_IP }}

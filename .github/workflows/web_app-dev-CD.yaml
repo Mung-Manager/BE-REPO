@@ -43,11 +43,11 @@ jobs:
         run: docker compose -f github-actions.docker-compose.yml run web_app poetry run pytest --cov=mung_manager/ --cov-fail-under=80 tests/ -n 4
 
   web_app-deploy:
+    needs: web_app-test-and-fomat-lint
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy
-        needs: web_app-test-and-fomat-lint
-        uses: appleboy/ssh-action@v0.1.5
+      - name: Connect to SSH and Deploy
+        uses: appleboy/ssh-action@v1.0.3
         with:
           key: ${{ secrets.DEV_EC2_KEY }}
           host: ${{ secrets.DEV_EC2_IP }}
