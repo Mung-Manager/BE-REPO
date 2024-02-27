@@ -48,7 +48,8 @@ class SwaggerSetup:
                 title="Mung Manager Guest API",
                 default_version="v1",
                 description=(
-                    "자세한 문서는 [여기](https://hiallen.notion.site/857f09c655d647dcb8eb1d8aea236e95?v=acca72eb88a74c468d3c62cf9d751b1c&pvs=4)를 참고해주세요."
+                    "자세한 문서는 [여기](https://hiallen.notion.site/857f09c655d647dcb8eb1d8aea236e95?\
+                    v=acca72eb88a74c468d3c62cf9d751b1c&pvs=4)를 참고해주세요."
                 ),
                 terms_of_service="",
                 contact=openapi.Contact(email="wogur981208@gmail.com"),
@@ -64,7 +65,8 @@ class SwaggerSetup:
                 title="Mung Manager Manager API",
                 default_version="v1",
                 description=(
-                    "자세한 문서는 [여기](https://hiallen.notion.site/e921b91dc5784e289d9a636f53a80d05?v=df9ebeb0a7594abf8b0341cd559371e9&pvs=4)를 참고해주세요."
+                    "자세한 문서는 [여기](https://hiallen.notion.site/e921b91dc5784e289d9a636f53a80d05?\
+                    v=df9ebeb0a7594abf8b0341cd559371e9&pvs=4)를 참고해주세요."
                 ),
                 terms_of_service="",
                 contact=openapi.Contact(email="wogur981208@gmail.com"),
