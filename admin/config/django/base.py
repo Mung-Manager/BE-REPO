@@ -3,7 +3,7 @@ import logging
 
 from config.env import BASE_DIR, APPS_DIR, env
 
-env.read_env(os.path.join(BASE_DIR, ".env.web_app"))
+env.read_env(os.path.join(BASE_DIR, ".env.admin"))
 
 logger = logging.getLogger("django")
 
@@ -14,16 +14,19 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 # Application definition
-LOCAL_APPS = [
-    "mung_manager.common.apps.CommonConfig",
+LOCAL_APPS = []
+
+ADMIN_APPS = [
+    "unfold",
+    "unfold.contrib.filters",  # optional, if special filters are needed
+    "unfold.contrib.forms",  # optional, if special form elements are needed
 ]
 
-THIRD_PARTY_APPS = [
-    "corsheaders",
-    "rest_framework",
-]
+THIRD_PARTY_APPS = []
 
 INSTALLED_APPS = [
+    *ADMIN_APPS,
+    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -35,7 +38,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -100,7 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # AUTH_USER_MODEL = "users.User"
 
 # Internationalization
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ko-kr"
 
 TIME_ZONE = "Asia/Seoul"
 
@@ -114,19 +116,10 @@ APPEND_SLASH = False
 
 # Static files (CSS, JavaScript, Images)
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATIC_URL = "/web-app/static/"
+STATIC_URL = "/admin/static/"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/web-app/media/"
-
-REST_FRAMEWORK = {
-    "DEFAULT_RENDERER_CLASSES": ("djangorestframework_camel_case.render.CamelCaseJSONRenderer",),
-    "DEFAULT_PARSER_CLASSES": ("djangorestframework_camel_case.parser.CamelCaseJSONParser",),
-    "EXCEPTION_HANDLER": "mung_manager.common.exception.exception_handler.default_exception_handler",
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
-}
-
-APP_DOMAIN = env("APP_DOMAIN", default="http://localhost:8000")
+MEDIA_URL = "/admin/media/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -176,12 +169,9 @@ LOGGING = {
     },
 }
 
-from config.settings.cors import *  # noqa
 
 from config.settings.debug_toolbar.settings import *  # noqa
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa
-from config.settings.swagger.settings import *  # noqa
-from config.settings.swagger.setup import SwaggerSetup  # noqa
+from config.settings.unfold import *  # noqa
 
 INSTALLED_APPS, MIDDLEWARE = DebugToolbarSetup.do_settings(INSTALLED_APPS, MIDDLEWARE)
-INSTALLED_APPS = SwaggerSetup.do_settings(INSTALLED_APPS)

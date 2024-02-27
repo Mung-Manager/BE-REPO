@@ -133,7 +133,8 @@ celerybeat.pid
 
 # Environments
 .env
-.env.mung
+.env.web_app
+.env.admin
 .venv
 env/
 venv/
