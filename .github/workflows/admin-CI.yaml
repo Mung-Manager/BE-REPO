@@ -1,7 +1,9 @@
 name: admin-CI
 
 on:
-  pull_request:
+  # pull_request:
+  #   branches: [ "develop", "main" ]
+  push:
     branches: [ "develop", "main" ]
 
 jobs:
