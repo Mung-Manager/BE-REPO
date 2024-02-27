@@ -39,7 +39,6 @@ class BaseResponseSerializer(serializers.Serializer):
     code = serializers.CharField(default="request_success")
     success = serializers.BooleanField(default=True)
     message = serializers.CharField(default="Request was successful.")
-    data = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         data_serializer = kwargs.pop("data_serializer", None)
