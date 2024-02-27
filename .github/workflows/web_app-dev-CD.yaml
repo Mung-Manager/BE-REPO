@@ -1,4 +1,4 @@
-run-name: Deploy to AWS dev server by @${{ github.actor }}
+run-name: Deploy to AWS web_app dev server by @${{ github.actor }}
 
 on:
   workflow_dispatch:
