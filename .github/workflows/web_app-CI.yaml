@@ -1,9 +1,7 @@
 name: web_app-CI
 
 on:
-  # pull_request:
-    # branches: [ "develop", "main" ]
-  push:
+  pull_request:
     branches: [ "develop", "main" ]
 
 jobs:
