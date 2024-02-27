@@ -76,6 +76,6 @@ class SwaggerSetup:
         )
 
         return urlpatterns + [
-            path("guest/swagger/docs", guest_schema_view.with_ui("swagger", cache_timeout=0), name="guest-schema-swagger-ui"),
-            path("manager/swagger/docs", manager_schema_view.with_ui("swagger", cache_timeout=0), name="manager-schema-swagger-ui"),
+            path("web-app/guest/swagger/docs", guest_schema_view.with_ui("swagger", cache_timeout=0), name="guest-schema-swagger-ui"),
+            path("web-app/manager/swagger/docs", manager_schema_view.with_ui("swagger", cache_timeout=0), name="manager-schema-swagger-ui"),
         ]
