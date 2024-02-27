@@ -56,7 +56,7 @@ jobs:
           script: |
             cd ${{ secrets.DEV_EC2_PATH }}
             git pull origin develop
-            sudo docker compose restart web_ap
+            sudo docker compose restart web_app
             sudo docker compose restart nginx
 
       - name: Notify Slack on Success
