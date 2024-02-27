@@ -21,6 +21,9 @@ jobs:
           echo "$DJANGO_TEST_ADMIN_ENV" >> .env.admin
           mv .env.admin admin/
 
+      - name: Move setup.cfg
+        run: mv setup.cfg admin/
+
       - name: Build docker
         run: docker compose -f github-actions.docker-compose.yml build postgres admin
 
