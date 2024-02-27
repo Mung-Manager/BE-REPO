@@ -37,7 +37,7 @@ services:
       - GITHUB_WORKFLOW=True
     command: poetry run python manage.py runserver
     volumes:
-      - .:/admin
+      - ./admin/:/admin/
     ports:
       - "8001:8001"
     depends_on:
