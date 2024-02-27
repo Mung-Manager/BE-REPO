@@ -13,27 +13,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build docker
-        run: docker compose -f github-actions.docker-compose.yml build postgres admin
-
       - name: Create env file
         env:
           DJANGO_TEST_ADMIN_ENV: ${{ secrets.DJANGO_TEST_ADMIN_ENV }}
         run: |
           touch .env.admin
           echo "$DJANGO_TEST_ADMIN_ENV" >> .env.admin
+          mv .env.admin admin/
 
-      # - name: Run isort
-      #   run: docker compose -f github-actions.docker-compose.yml run admin poetry run isort mung_manager/ --check
+      - name: Build docker
+        run: docker compose -f github-actions.docker-compose.yml build postgres admin
 
-      # - name: Run black
-      #   run: docker compose -f github-actions.docker-compose.yml run admin poetry run black mung_manager/ --check
+      - name: Run isort
+        run: docker compose -f github-actions.docker-compose.yml run admin poetry run isort mung_manager/ --check
+
+      - name: Run black
+        run: docker compose -f github-actions.docker-compose.yml run admin poetry run black mung_manager/ --check
 
       - name: Run flake8
-        run: docker compose -f github-actions.docker-compose.yml run admin poetry show
+        run: docker compose -f github-actions.docker-compose.yml run admin poetry run flake8
 
-      # - name: Run mypy
-      #   run: docker compose -f github-actions.docker-compose.yml run admin poetry run mypy --config mypy.ini mung_manager/
+      - name: Run mypy
+        run: docker compose -f github-actions.docker-compose.yml run admin poetry run mypy --config mypy.ini mung_manager/
 
       # - name: Notify Slack on Success
       #   if: success()
