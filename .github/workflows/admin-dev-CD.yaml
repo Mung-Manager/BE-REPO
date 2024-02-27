@@ -57,3 +57,69 @@ jobs:
             cd ${{ secrets.DEV_EC2_PATH }}
             git pull origin develop
             sudo docker compose restart admin, nginx
+
+      - name: Notify Slack on Success
+        if: success()
+        id: slack-success
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
+              "attachments": [
+                {
+                  "color": "#36a64f",
+                  "title": "${{ github.repository }}",
+                  "title_link": "https://github.com/${{github.repository}}",
+                  "text": "GitHub Action Admin DEV-CD 성공 😄",
+                  "fields": [
+                    {
+                      "title": "Repository",
+                      "value": "${{ github.repository }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Tag",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+      - name: Notify Slack on Failure
+        if: failure()
+        id: slack-failure
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
+              "attachments": [
+                {
+                  "color": "#ff0000",
+                  "title": "${{ github.repository }}",
+                  "title_link": "https://github.com/${{github.repository}}",
+                  "text": "GitHub Action Admin DEV-CD 실패 😭",
+                  "fields": [
+                    {
+                      "title": "Repository",
+                      "value": "${{ github.repository }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Tag",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
