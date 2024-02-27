@@ -1,11 +1,11 @@
-name: admin-CI
+name: web_app-CI
 
 on:
   pull_request:
     branches: [ "develop", "main" ]
 
 jobs:
-  admin-format-lint:
+  web_app-format-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -13,29 +13,29 @@ jobs:
 
       - name: Create env file
         env:
-          DJANGO_TEST_ADMIN_ENV: ${{ secrets.DJANGO_TEST_ADMIN_ENV }}
+          DJANGO_TEST_WEB_APP_ENV: ${{ secrets.DJANGO_TEST_WEB_APP_ENV }}
         run: |
-          touch .env.admin
-          echo "$DJANGO_TEST_ADMIN_ENV" >> .env.admin
-          mv .env.admin admin/
+          touch .env.web_app
+          echo "$DJANGO_TEST_WEB_APP_ENV" >> .env.web_app
+          mv .env.web_app web_app/
 
       - name: Move setup.cfg
-        run: mv setup.cfg admin/
+        run: mv setup.cfg web_app/
 
       - name: Build docker
-        run: docker compose -f github-actions.docker-compose.yml build postgres admin
+        run: docker compose -f github-actions.docker-compose.yml build postgres web_app
 
       - name: Run isort
-        run: docker compose -f github-actions.docker-compose.yml run admin poetry run isort mung_manager/ --check
+        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run isort mung_manager/ --check
 
       - name: Run black
-        run: docker compose -f github-actions.docker-compose.yml run admin poetry run black mung_manager/ --check
+        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run black mung_manager/ --check
 
       - name: Run flake8
-        run: docker compose -f github-actions.docker-compose.yml run admin poetry run flake8
+        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run flake8
 
       - name: Run mypy
-        run: docker compose -f github-actions.docker-compose.yml run admin poetry run mypy --config mypy.ini mung_manager/
+        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run mypy --config mypy.ini mung_manager/
 
       - name: Notify Slack on Success
         if: success()
@@ -104,7 +104,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  admin-test:
+  web_app-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -114,15 +114,15 @@ jobs:
         env:
           DJANGO_TEST_ADMIN_ENV: ${{ secrets.DJANGO_TEST_ADMIN_ENV }}
         run: |
-          touch .env.admin
-          echo "$DJANGO_TEST_ADMIN_ENV" >> .env.admin
+          touch .env.web_app
+          echo "$DJANGO_TEST_ADMIN_ENV" >> .env.web_app
 
       - name: Build docker
-        run: docker compose -f github-actions.docker-compose.yml build postgres admin
+        run: docker compose -f github-actions.docker-compose.yml build postgres web_app
 
       - name: Run tests
-        run:  docker compose -f github-actions.docker-compose.yml run admin poetry run pytest --cov=mung_manager --cov-fail-under=80 tests/ -n 4 &&
-              docker compose -f github-actions.docker-compose.yml run admin poetry run pytest --cov=mung_manager tests/ --cov-report=xml -n 4
+        run:  docker compose -f github-actions.docker-compose.yml run web_app poetry run pytest --cov=mung_manager --cov-fail-under=80 tests/ -n 4 &&
+              docker compose -f github-actions.docker-compose.yml run web_app poetry run pytest --cov=mung_manager tests/ --cov-report=xml -n 4
 
       - name: Report coverage to codecov
         uses: codecov/codecov-action@v3

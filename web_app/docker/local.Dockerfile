@@ -25,7 +25,7 @@ COPY pyproject.toml .
 WORKDIR /web_app/
 
 # Install dependencies
-RUN poetry install
+RUN poetry install --without admin
 
 # Copy the rest of the application files
 COPY . /web_app/
