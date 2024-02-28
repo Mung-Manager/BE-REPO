@@ -106,24 +106,24 @@ jobs:
             ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ADMIN_ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
             ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ADMIN_ECR_REPOSITORY }}:latest
 
-      - name: Create deploy.sh
+      - name: Create admin-deploy.sh
         run: |
-          sed -i "s%<WEB_APP_IMAGE>%$ECR_REGISTRY/${{ env.WEB_APP_ECR_REPOSITORY }}:latest%g" ./docker-compose.yml
-          sed -i "s%<ADMIN_IMAGE>%$ECR_REGISTRY/${{ env.ADMIN_ECR_REPOSITORY }}:latest%g" ./docker-compose.yml
+          sed -i "s%<WEB_APP_IMAGE>%${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.WEB_APP_ECR_REPOSITORY }}:latest%g" ./docker-compose.yml
+          sed -i "s%<ADMIN_IMAGE>%${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ADMIN_ECR_REPOSITORY }}:latest%g" ./docker-compose.yml
           sed -i "s%<DJANGO_SETTINGS_MODULE>%config.django.dev%g" ./docker-compose.yml
-          touch deploy.sh
-          echo "#!/bin/bash" >> deploy.sh
-          echo "aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}" >> deploy.sh
-          echo "sudo docker stop admin" >> deploy.sh
-          echo "sudo docker rm admin" >> deploy.sh
-          echo "sudo docker rmi $(sudo docker images | grep ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ADMIN_ECR_REPOSITORY }}:latest | awk '{print $3}')" >> deploy.sh
-          echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build admin" >> deploy.sh
-          echo "sudo docker compose restart nginx" >> deploy.sh
+          touch admin-deploy.sh
+          echo "#!/bin/bash" >> admin-deploy.sh
+          echo "aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}" >> admin-deploy.sh
+          echo "sudo docker stop admin" >> admin-deploy.sh
+          echo "sudo docker rm admin" >> admin-deploy.sh
+          echo "sudo docker rmi $(sudo docker images | grep ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ADMIN_ECR_REPOSITORY }}:latest | awk '{print $3}')" >> admin-deploy.sh
+          echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build admin" >> admin-deploy.sh
+          echo "sudo docker compose restart nginx" >> admin-deploy.sh
 
       - name: Upload to S3
         run: |
-          zip -r deploy-${{ env.IMAGE_TAG }}.zip deploy.sh docker-compose.yml ./nginx
-          aws s3 cp --region ap-northeast-2 --acl private ./deploy-${{ env.IMAGE_TAG }}.zip s3://mung-manager-deploy/dev/
+          zip -r admin-deploy-${{ env.IMAGE_TAG }}.zip admin-deploy.sh docker-compose.yml ./nginx
+          aws s3 cp --region ap-northeast-2 --acl private ./admin-deploy-${{ env.IMAGE_TAG }}.zip s3://mung-manager-deploy/dev/admin
 
       - name: Connect to SSH and AWS Deploy
         uses: appleboy/ssh-action@v1.0.3
@@ -134,10 +134,11 @@ jobs:
           port: ${{ env.DEV_EC2_PORT }}
           script: |
             cd ${{ env.DEV_EC2_PATH }}
-            aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/deploy-${{ env.IMAGE_TAG }}.zip
-            unzip deploy-${{ env.IMAGE_TAG }}.zip
-            chmod +x deploy.sh
-            ./deploy.sh
+            aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/admin/admin-deploy-${{ env.IMAGE_TAG }}.zip
+            unzip admin-deploy-${{ env.IMAGE_TAG }}.zip
+            sudo chmod +x admin-deploy.sh
+            ./admin-deploy.sh
+            sudo rm -rf admin-deploy-${{ env.IMAGE_TAG }}.zip
 
       - name: Notify Slack on Success
         if: success()
