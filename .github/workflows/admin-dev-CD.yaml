@@ -21,11 +21,10 @@ env:
   DEV_AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
   DEV_AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
 
-  # AWS ECR Settings
+  # AWS ECR Settingsalias
+  ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
   ECR_REPOSITORY: mung_manager_dev_admin
   IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
-
-
 
 jobs:
   # admin-test-and-fomat-lint:
