@@ -79,25 +79,25 @@ jobs:
         with:
           aws-access-key-id: ${{ env.DEV_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ env.DEV_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
+          aws-region: us-east-1
 
       - name: Login to Amazon ECR Public
         id: login-ecr-public
-        uses: aws-actions/amazon-ecr-login@v1
-        # with:
-        #   registry-type: public
-
-      - name: Build and push
-        id: build-and-push
-        uses: docker/build-push-action@v5
+        uses: aws-actions/amazon-ecr-login@v2
         with:
-          context: .
-          file: ./admin/docker/dev.Dockerfile
-          platforms: linux/x86_64
-          push: true
-          tags: |
-            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          registry-type: public
+
+      # - name: Build and push
+      #   id: build-and-push
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: ./admin/docker/dev.Dockerfile
+      #     platforms: linux/x86_64
+      #     push: true
+      #     tags: |
+      #       ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+      #       ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
 
       # - name: Build docker file and push to ECR
       #   env:
