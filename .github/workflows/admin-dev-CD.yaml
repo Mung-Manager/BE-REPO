@@ -89,15 +89,15 @@ jobs:
       - name: Build and push
         id: build-and-push
         uses: docker/build-push-action@v5
-        env:
-          ECR_PUBLIC_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
-          ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
-          IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
         with:
           context: .
           file: ./admin/docker/dev.Dockerfile
           platforms: linux/x86_64
+          env:
+            ECR_PUBLIC_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+            ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
+            ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
+            IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
           push: true
           tags: |
             $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG
