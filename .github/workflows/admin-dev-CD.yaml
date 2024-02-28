@@ -26,7 +26,13 @@ env:
   ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
   WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
   IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
-  DATE: ${{ steps.date.outputs.date }}
+
+  # AWS EC2 Settings
+  DEV_EC2_KEY: ${{ secrets.DEV_EC2_KEY }}
+  DEV_EC2_IP: ${{ secrets.DEV_EC2_IP }}
+  DEV_EC2_NAME: ${{ secrets.DEV_EC2_NAME }}
+  DEV_EC2_PORT: ${{ secrets.DEV_EC2_PORT }}
+  DEV_EC2_PATH: ${{ secrets.DEV_EC2_PATH }}
 
 jobs:
   # admin-test-and-fomat-lint:
@@ -125,12 +131,12 @@ jobs:
       - name: Connect to SSH and AWS Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          key: ${{ secrets.DEV_EC2_KEY }}
-          host: ${{ secrets.DEV_EC2_IP }}
-          username: ${{ secrets.DEV_EC2_NAME }}
-          port: ${{ secrets.DEV_EC2_PORT }}
+          key: ${{ env.DEV_EC2_KEY }}
+          host: ${{ env.DEV_EC2_IP }}
+          username: ${{ env.DEV_EC2_NAME }}
+          port: ${{ env.DEV_EC2_PORT }}
         script: |
-          cd ${{ secrets.DEV_EC2_PATH }}
+          cd ${{ env.DEV_EC2_PATH }}
           aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/deploy-${{ env.IMAGE_TAG }}-$NOW.zip
           unzip deploy-${{ env.IMAGE_TAG }}-$NOW.zip
           chmod +x deploy.sh
