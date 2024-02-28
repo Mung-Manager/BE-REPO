@@ -95,8 +95,8 @@ jobs:
           platforms: linux/x86_64
           push: true
           tags: |
-            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:latest
 
       # - name: Build docker file and push to ECR
       #   env:
