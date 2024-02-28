@@ -87,17 +87,17 @@ jobs:
         with:
           registry-type: public
 
-      # - name: Build and push
-      #   id: build-and-push
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     file: ./admin/docker/dev.Dockerfile
-      #     platforms: linux/x86_64
-      #     push: true
-      #     tags: |
-      #       ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-      #       ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+      - name: Build and push
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./admin/docker/dev.Dockerfile
+          platforms: linux/x86_64
+          push: true
+          tags: |
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
 
       # - name: Build docker file and push to ECR
       #   env:
