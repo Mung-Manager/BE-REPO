@@ -82,7 +82,7 @@ jobs:
           WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
           IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
         run: |
-          docker build -t $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG -f ./admin/docker/dev.Dockerfile ./admin
+          docker build -t $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG -f ./admin/docker/dev.Dockerfile .
           docker push $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:latest
       #     sed -i "s%<WEB_APP_IMAGE>%$ECR_REGISTRY/$WEB_APP_ECR_REPOSITORY:latest%g" ./docker-compose.yml
