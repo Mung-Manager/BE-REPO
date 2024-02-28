@@ -23,6 +23,7 @@ env:
   DEV_AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
 
   # AWS ECR Settings
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
   ECR_REPOSITORY: mung_manager_dev_admin
   IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
 
@@ -82,24 +83,17 @@ jobs:
           aws-secret-access-key: ${{ env.DEV_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: print
-        run: echo ${{ steps.login-ecr.outputs.registry }}
-
-      # - name: Build and push
-      #   id: build-and-push
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     file: ./admin/docker/dev.Dockerfile
-      #     platforms: linux/x86_64
-      #     push: true
-      #     tags: |
-      #       ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-      #       ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+      - name: Build and push
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./admin/docker/dev.Dockerfile
+          platforms: linux/x86_64
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
       # - name: Build docker file and push to ECR
       #   env:
