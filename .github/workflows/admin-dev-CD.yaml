@@ -135,12 +135,12 @@ jobs:
           host: ${{ env.DEV_EC2_IP }}
           username: ${{ env.DEV_EC2_NAME }}
           port: ${{ env.DEV_EC2_PORT }}
-        script: |
-          cd ${{ env.DEV_EC2_PATH }}
-          aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/deploy-${{ env.IMAGE_TAG }}-$NOW.zip
-          unzip deploy-${{ env.IMAGE_TAG }}-$NOW.zip
-          chmod +x deploy.sh
-          ./deploy.sh
+          script: |
+            cd ${{ env.DEV_EC2_PATH }}
+            aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/deploy-${{ env.IMAGE_TAG }}-$NOW.zip
+            unzip deploy-${{ env.IMAGE_TAG }}-$NOW.zip
+            chmod +x deploy.sh
+            ./deploy.sh
 
       - name: Notify Slack on Success
         if: success()
