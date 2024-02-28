@@ -1,7 +1,14 @@
-run-name: Deploy to AWS admin dev server by @${{ github.actor }}
+run-name: Deploy to AWS(Docker Image v.${{ github.event.inputs.docker_image_tag }}) by @${{ github.actor }}
 
 on:
   workflow_dispatch:
+    inputs:
+      docker_image_tag:
+        description: '이전 버전과 다른 상위 버전을 입력해주세요. (ex. 1.0.0)'
+        default: '1.0.0'
+        required: true
+        type: string
+
     permissions:
       users:
         - saJaeHyukc
@@ -44,20 +51,64 @@ jobs:
 
   admin-deploy:
     runs-on: ubuntu-latest
-    needs: admin-test-and-fomat-lint
     steps:
-      - name: Connect to SSH and Deploy
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          key: ${{ secrets.DEV_EC2_KEY }}
-          host: ${{ secrets.DEV_EC2_IP }}
-          username: ${{ secrets.DEV_EC2_NAME }}
-          port: ${{ secrets.DEV_EC2_PORT }}
-          script: |
-            cd ${{ secrets.DEV_EC2_PATH }}
-            git pull origin develop
-            sudo docker compose restart admin
-            sudo docker compose restart nginx
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create env file
+        env:
+          DJANGO_TEST_ADMIN_ENV: ${{ secrets.DJANGO_TEST_ADMIN_ENV }}
+        run: |
+          touch .env.admin
+          echo "$DJANGO_TEST_ADMIN_ENV" >> .env.admin
+          mv .env.admin admin/
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build docker file and push to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
+          WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
+          IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG -f ./admin/docker/Dockerfile ./admin
+          docker push $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:latest
+      #     sed -i "s%<WEB_APP_IMAGE>%$ECR_REGISTRY/$WEB_APP_ECR_REPOSITORY:latest%g" ./docker-compose.yml
+      #     sed -i "s%<ADMIN_IMAGE>%$ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:latest%g" ./docker-compose.yml
+      #     sed -i "s%<DJANGO_SETTINGS_MODULE>%config.django.dev%g" ./docker-compose.yml
+      #     touch deploy.sh
+      #     echo "#!/bin/bash" >> deploy.sh
+      #     echo "aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin $ECR_REGISTRY" >> deploy.sh
+      #     echo "sudo docker stop admin" >> deploy.sh
+      #     echo "sudo docker rm admin" >> deploy.sh
+      #     echo "sudo docker rmi $(sudo docker images | grep $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY | awk '{print $3}')" >> deploy.sh
+      #     echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build admin" >> deploy.sh
+      #     echo "sudo docker compose restart nginx" >> deploy.sh
+
+      # - name: Upload to S3
+      #   env:
+      #     IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
+      #   run: |
+      #     zip -r deploy-$IMAGE_TAG.zip appspec.yml deploy.sh docker-compose.yml ./nginx
+      #     aws s3 cp --region ap-northeast-2 --acl private ./deploy-$IMAGE_TAG.zip s3://mung-manager-deploy/dev/
+
+      # - name: Connect to SSH and AWS Deploy
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     key: ${{ secrets.DEV_EC2_KEY }}
+      #     host: ${{ secrets.DEV_EC2_IP }}
+      #     username: ${{ secrets.DEV_EC2_NAME }}
+      #     port: ${{ secrets.DEV_EC2_PORT }}
+      #   script: |
+      #     cd ${{ secrets.DEV_EC2_PATH }}
+      #     aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/deploy-$IMAGE_TAG.zip .
+      #     unzip deploy-$IMAGE_TAG.zip
+      #     chmod +x deploy.sh
+      #     ./deploy.sh
 
       - name: Notify Slack on Success
         if: success()
