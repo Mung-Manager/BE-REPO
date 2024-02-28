@@ -113,7 +113,7 @@ jobs:
           echo "aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS" >> admin-deploy.sh
           echo "sudo docker stop admin" >> admin-deploy.sh
           echo "sudo docker rm admin" >> admin-deploy.sh
-          echo "sudo docker rmi $(sudo docker images | grep $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$ADMIN_ECR_REPOSITORY:latest | awk '{print $3}')" >> admin-deploy.sh
+          echo "sudo docker rmi $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$ADMIN_ECR_REPOSITORY:latest" >> admin-deploy.sh
           echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build admin" >> admin-deploy.sh
           echo "sudo docker compose restart nginx" >> admin-deploy.sh
 
@@ -136,7 +136,7 @@ jobs:
           script: |
             cd ${{ secrets.DEV_EC2_PATH }}
             aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/admin/admin-deploy-$IMAGE_TAG.zip .
-            unzip -n admin-deploy-$IMAGE_TAG.zip
+            unzip -o admin-deploy-$IMAGE_TAG.zip
             sudo chmod +x admin-deploy.sh
             ./admin-deploy.sh
             sudo rm -rf admin-deploy-$IMAGE_TAG.zip

@@ -13,7 +13,6 @@ services:
     image: <WEB_APP_IMAGE> #shell script will replace this
     entrypoint: sh -c "poetry run python manage.py collectstatic --no-input && poetry run python manage.py migrate && poetry run gunicorn config.wsgi --workers=5 -b 0.0.0.0:8000"
     volumes:
-      - ./web_app/:/web_app/
       - /etc/localtime:/etc/localtime:ro
       - web_app_django_media:/web_app/media/
       - web_app_django_static:/web_app/static/
@@ -28,7 +27,6 @@ services:
     image: <ADMIN_IMAGE> # shell script will replace this
     entrypoint: sh -c "poetry run python manage.py collectstatic --no-input && poetry run python manage.py migrate && poetry run gunicorn config.wsgi --workers=5 -b 0.0.0.0:8001"
     volumes:
-      - ./admin/:/admin/
       - /etc/localtime:/etc/localtime:ro
       - admin_django_media:/admin/media/
       - admin_django_static:/admin/static/

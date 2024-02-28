@@ -104,7 +104,7 @@ jobs:
           echo "aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS" >> web_app-deploy.sh
           echo "sudo docker stop web_app" >> web_app-deploy.sh
           echo "sudo docker rm web_app" >> web_app-deploy.sh
-          echo "sudo docker rmi $(sudo docker images | grep $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$WEB_APP_ECR_REPOSITORY:latest | awk '{print $3}')" >> web_app-deploy.sh
+          echo "sudo docker rmi $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$WEB_APP_ECR_REPOSITORY:latest" >> web_app-deploy.sh
           echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build web_app" >> web_app-deploy.sh
           echo "sudo docker compose restart nginx" >> web_app-deploy.sh
 
@@ -127,7 +127,7 @@ jobs:
           script: |
             cd ${{ secrets.DEV_EC2_PATH }}
             aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/web_app/web_app-deploy-$IMAGE_TAG.zip .
-            unzip -n web_app-deploy-$IMAGE_TAG.zip
+            unzip -o web_app-deploy-$IMAGE_TAG.zip
             sudo chmod +x web_app-deploy.sh
             ./web_app-deploy.sh
             sudo rm -rf web_app-deploy-$IMAGE_TAG.zip
