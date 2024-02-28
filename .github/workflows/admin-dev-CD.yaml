@@ -84,7 +84,7 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG -f ./admin/docker/dev.Dockerfile .
           docker push $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:latest
+      # docker push $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:latest
       #     sed -i "s%<WEB_APP_IMAGE>%$ECR_REGISTRY/$WEB_APP_ECR_REPOSITORY:latest%g" ./docker-compose.yml
       #     sed -i "s%<ADMIN_IMAGE>%$ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:latest%g" ./docker-compose.yml
       #     sed -i "s%<DJANGO_SETTINGS_MODULE>%config.django.dev%g" ./docker-compose.yml
