@@ -80,19 +80,14 @@ jobs:
       - name: Build and push
         id: build-and-push
         uses: docker/build-push-action@v5
-        env:
-          ECR_PUBLIC_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
-          WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
-          IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
         with:
           context: ./web_app
           file: ./web_app/docker/dev.Dockerfile
           platforms: linux/x86_64
           push: true
           tags: |
-            $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$WEB_APP_ECR_REPOSITORY:$IMAGE_TAG
-            $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$WEB_APP_ECR_REPOSITORY:latest
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/mung_manager_dev_web_app:${{ github.event.inputs.docker_image_tag }}
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/mung_manager_dev_web_app:latest
 
       - name: Create web_app-deploy.sh
         env:
