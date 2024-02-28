@@ -1,4 +1,4 @@
-run-name: Deploy to AWS(Docker Image v.${{ github.event.inputs.docker_image_tag }}) by @${{ github.actor }}
+run-name: Deploy to AWS(Web App Docker Image v.${{ github.event.inputs.docker_image_tag }}) by @${{ github.actor }}
 
 on:
   workflow_dispatch:
@@ -13,27 +13,6 @@ on:
       users:
         - saJaeHyukc
 
-env:
-  # Django Settings
-  DJANGO_TEST_WEB_APP_ENV: ${{ secrets.DJANGO_TEST_WEB_APP_ENV }}
-
-  # AWS Settings
-  DEV_AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
-  DEV_AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
-
-  # AWS ECR Settingsalias
-  ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
-  ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
-  WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
-  IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
-
-  # AWS EC2 Settings
-  DEV_EC2_KEY: ${{ secrets.DEV_EC2_KEY }}
-  DEV_EC2_IP: ${{ secrets.DEV_EC2_IP }}
-  DEV_EC2_NAME: ${{ secrets.DEV_EC2_NAME }}
-  DEV_EC2_PORT: ${{ secrets.DEV_EC2_PORT }}
-  DEV_EC2_PATH: ${{ secrets.DEV_EC2_PATH }}
-
 jobs:
   # web_app-test-and-fomat-lint:
   #   runs-on: ubuntu-latest
@@ -41,11 +20,13 @@ jobs:
   #     - name: Checkout code
   #       uses: actions/checkout@v3
 
-  #     - name: Create env file
-  #       run: |
-  #         touch .env.web_app
-  #         echo "${{ env.DJANGO_TEST_WEB_APP_ENV }}" >> .env.web_app
-  #         mv .env.web_app web_app/
+      # - name: Create env file
+        # env:
+        #   DJANGO_TEST_WEB_APP_ENV: ${{ secrets.DJANGO_TEST_WEB_APP_ENV }}
+        # run: |
+        #   touch .env.web_app
+        #   echo "$DJANGO_TEST_WEB_APP_ENV" >> .env.web_app
+        #   mv .env.web_app web_app/
 
   #     - name: Move setup.cfg
   #       run: mv setup.cfg web_app/
@@ -86,8 +67,8 @@ jobs:
       - name: AWS configure
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ env.DEV_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.DEV_AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Login to Amazon ECR Public
@@ -99,48 +80,62 @@ jobs:
       - name: Build and push
         id: build-and-push
         uses: docker/build-push-action@v5
+        env:
+          ECR_PUBLIC_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
+          WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
+          IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
         with:
           context: ./web_app
           file: ./web_app/docker/dev.Dockerfile
           platforms: linux/x86_64
           push: true
           tags: |
-            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.WEB_APP_ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.WEB_APP_ECR_REPOSITORY }}:latest
+            $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$WEB_APP_ECR_REPOSITORY:$IMAGE_TAG
+            $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$WEB_APP_ECR_REPOSITORY:latest
 
       - name: Create web_app-deploy.sh
+        env:
+          ECR_PUBLIC_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
+          ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
+          WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
         run: |
-          sed -i "s%<ADMIN_IMAGE>%${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ADMIN_ECR_REPOSITORY }}:latest%g" ./docker-compose.yml
-          sed -i "s%<WEB_APP_IMAGE>%${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.WEB_APP_ECR_REPOSITORY }}:latest%g" ./docker-compose.yml
+          sed -i "s%<ADMIN_IMAGE>%$ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$ADMIN_ECR_REPOSITORY:latest%g" ./docker-compose.yml
+          sed -i "s%<WEB_APP_IMAGE>%$ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$WEB_APP_ECR_REPOSITORY:latest%g" ./docker-compose.yml
           sed -i "s%<DJANGO_SETTINGS_MODULE>%config.django.dev%g" ./docker-compose.yml
           touch web_app-deploy.sh
           echo "#!/bin/bash" >> web_app-deploy.sh
-          echo "aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}" >> web_app-deploy.sh
+          echo "aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS" >> web_app-deploy.sh
           echo "sudo docker stop web_app" >> web_app-deploy.sh
           echo "sudo docker rm web_app" >> web_app-deploy.sh
-          echo "sudo docker rmi $(sudo docker images | grep ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.WEB_APP_ECR_REPOSITORY }}:latest | awk '{print $3}')" >> web_app-deploy.sh
+          echo "sudo docker rmi $(sudo docker images | grep $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$WEB_APP_ECR_REPOSITORY:latest | awk '{print $3}')" >> web_app-deploy.sh
           echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build web_app" >> web_app-deploy.sh
           echo "sudo docker compose restart nginx" >> web_app-deploy.sh
 
       - name: Upload to S3
+        env:
+          IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
         run: |
-          zip -r web_app-deploy-${{ env.IMAGE_TAG }}.zip web_app-deploy.sh docker-compose.yml ./nginx
-          aws s3 cp --region ap-northeast-2 --acl private ./web_app-deploy-${{ env.IMAGE_TAG }}.zip s3://mung-manager-deploy/dev/web_app/
+          zip -r web_app-deploy-$IMAGE_TAG.zip web_app-deploy.sh docker-compose.yml ./nginx
+          aws s3 cp --region ap-northeast-2 --acl private ./web_app-deploy-$IMAGE_TAG.zip s3://mung-manager-deploy/dev/web_app/
 
       - name: Connect to SSH and AWS Deploy
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
         with:
-          key: ${{ env.DEV_EC2_KEY }}
-          host: ${{ env.DEV_EC2_IP }}
-          username: ${{ env.DEV_EC2_NAME }}
-          port: ${{ env.DEV_EC2_PORT }}
+          key: ${{ secrets.DEV_EC2_KEY }}
+          host: ${{ secrets.DEV_EC2_IP }}
+          username: ${{ secrets.DEV_EC2_NAME }}
+          port: ${{ secrets.DEV_EC2_PORT }}
           script: |
-            cd ${{ env.DEV_EC2_PATH }}
-            aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/web_app/web_app-deploy-${{ env.IMAGE_TAG }}.zip .
-            unzip -n web_app-deploy-${{ env.IMAGE_TAG }}.zip
+            cd ${{ secrets.DEV_EC2_PATH }}
+            aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/web_app/web_app-deploy-$IMAGE_TAG.zip .
+            unzip -n web_app-deploy-$IMAGE_TAG.zip
             sudo chmod +x web_app-deploy.sh
             ./web_app-deploy.sh
-            sudo rm -rf web_app-deploy-${{ env.IMAGE_TAG }}.zip
+            sudo rm -rf web_app-deploy-$IMAGE_TAG.zip
 
       - name: Notify Slack on Success
         if: success()
@@ -155,7 +150,7 @@ jobs:
                   "color": "#36a64f",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action WEB_APP DEV-CD 성공 😄",
+                  "text": "GitHub Action WEB APP DEV-CD 성공 😄",
                   "fields": [
                     {
                       "title": "Repository",
@@ -188,12 +183,12 @@ jobs:
                   "color": "#ff0000",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action WEB_APP DEV-CD 실패 😭",
+                  "text": "GitHub Action WEB APP DEV-CD 실패 😭",
                   "fields": [
                     {
                       "title": "Repository",
                       "value": "${{ github.repository }}",
-                      "short": true
+                    "short": true
                     },
                     {
                       "title": "Tag",
