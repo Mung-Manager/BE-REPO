@@ -23,7 +23,8 @@ env:
 
   # AWS ECR Settingsalias
   ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
-  ECR_REPOSITORY: mung_manager_dev_admin
+  ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
+  WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
   IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
 
 jobs:
@@ -95,37 +96,27 @@ jobs:
           platforms: linux/x86_64
           push: true
           tags: |
-            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:latest
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ADMIN_ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ADMIN_ECR_REPOSITORY }}:latest
 
-      # - name: Build docker file and push to ECR
-      #   env:
-      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
-      #     WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
-      #     IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
-      #   run: |
-      #     docker build -t $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG -f ./admin/docker/dev.Dockerfile .
-      #     docker push $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG
-      # docker push $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:latest
-      #     sed -i "s%<WEB_APP_IMAGE>%$ECR_REGISTRY/$WEB_APP_ECR_REPOSITORY:latest%g" ./docker-compose.yml
-      #     sed -i "s%<ADMIN_IMAGE>%$ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:latest%g" ./docker-compose.yml
-      #     sed -i "s%<DJANGO_SETTINGS_MODULE>%config.django.dev%g" ./docker-compose.yml
-      #     touch deploy.sh
-      #     echo "#!/bin/bash" >> deploy.sh
-      #     echo "aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin $ECR_REGISTRY" >> deploy.sh
-      #     echo "sudo docker stop admin" >> deploy.sh
-      #     echo "sudo docker rm admin" >> deploy.sh
-      #     echo "sudo docker rmi $(sudo docker images | grep $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY | awk '{print $3}')" >> deploy.sh
-      #     echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build admin" >> deploy.sh
-      #     echo "sudo docker compose restart nginx" >> deploy.sh
+      - name: Create deploy.sh
+        run: |
+          sed -i "s%<WEB_APP_IMAGE>%$ECR_REGISTRY/${{ env.WEB_APP_ECR_REPOSITORY }}:latest%g" ./docker-compose.yml
+          sed -i "s%<ADMIN_IMAGE>%$ECR_REGISTRY/${{ env.ADMIN_ECR_REPOSITORY }}:latest%g" ./docker-compose.yml
+          sed -i "s%<DJANGO_SETTINGS_MODULE>%config.django.dev%g" ./docker-compose.yml
+          touch deploy.sh
+          echo "#!/bin/bash" >> deploy.sh
+          echo "aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}" >> deploy.sh
+          echo "sudo docker stop admin" >> deploy.sh
+          echo "sudo docker rm admin" >> deploy.sh
+          echo "sudo docker rmi $(sudo docker images | grep ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ADMIN_ECR_REPOSITORY }}:latest | awk '{print $3}')" >> deploy.sh
+          echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build admin" >> deploy.sh
+          echo "sudo docker compose restart nginx" >> deploy.sh
 
-      # - name: Upload to S3
-      #   env:
-      #     IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
-      #   run: |
-      #     zip -r deploy-$IMAGE_TAG.zip appspec.yml deploy.sh docker-compose.yml ./nginx
-      #     aws s3 cp --region ap-northeast-2 --acl private ./deploy-$IMAGE_TAG.zip s3://mung-manager-deploy/dev/
+      - name: Upload to S3
+        run: |
+          zip -r deploy-${{ env.IMAGE_TAG }}.zip deploy.sh docker-compose.yml ./nginx
+          aws s3 cp --region ap-northeast-2 --acl private ./deploy-${{ env.IMAGE_TAG }}.zip s3://mung-manager-deploy/dev/
 
       # - name: Connect to SSH and AWS Deploy
       #   uses: appleboy/ssh-action@v1.0.3
