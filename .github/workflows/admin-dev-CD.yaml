@@ -78,7 +78,7 @@ jobs:
       - name: Build docker file and push to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ADMIN_ECR_REPOSITORY: public.ecr.aws/i3l4f3k5/mung_manager_dev_admin
+          ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
           WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
           IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
         run: |
