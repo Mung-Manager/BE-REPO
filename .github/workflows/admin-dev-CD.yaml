@@ -123,7 +123,7 @@ jobs:
       - name: Upload to S3
         run: |
           zip -r admin-deploy-${{ env.IMAGE_TAG }}.zip admin-deploy.sh docker-compose.yml ./nginx
-          aws s3 cp --region ap-northeast-2 --acl private ./admin-deploy-${{ env.IMAGE_TAG }}.zip s3://mung-manager-deploy/dev/admin
+          aws s3 cp --region ap-northeast-2 --acl private ./admin-deploy-${{ env.IMAGE_TAG }}.zip s3://mung-manager-deploy/dev/admin/
 
       - name: Connect to SSH and AWS Deploy
         uses: appleboy/ssh-action@v1.0.3
