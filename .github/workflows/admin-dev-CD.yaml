@@ -98,7 +98,7 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./admin
           file: ./admin/docker/dev.Dockerfile
           platforms: linux/x86_64
           push: true

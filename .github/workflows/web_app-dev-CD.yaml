@@ -100,7 +100,7 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./web_app
           file: ./web_app/docker/dev.Dockerfile
           platforms: linux/x86_64
           push: true
