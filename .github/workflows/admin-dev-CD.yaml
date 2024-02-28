@@ -95,13 +95,13 @@ jobs:
           ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
           IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
         with:
-          context: ./admin
+          context: .
           file: ./admin/docker/dev.Dockerfile
           platforms: linux/x86_64
           push: true
           tags: |
-            ${ECR_PUBLIC_REGISTRY}/${ECR_PUBLIC_REGISTRY_ALIAS}/${ADMIN_ECR_REPOSITORY}:${IMAGE_TAG}
-            ${ECR_PUBLIC_REGISTRY}/${ECR_PUBLIC_REGISTRY_ALIAS}/${ADMIN_ECR_REPOSITORY}:latest
+            $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG
+            $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$ADMIN_ECR_REPOSITORY:latest
 
       - name: Create admin-deploy.sh
         env:
