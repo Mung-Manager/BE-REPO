@@ -29,4 +29,4 @@ WORKDIR /admin/
 RUN poetry install --without test,web-app
 
 # Copy the rest of the application files
-COPY . /admin
+COPY ./admin/ .
