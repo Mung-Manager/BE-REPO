@@ -23,7 +23,6 @@ env:
   DEV_AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
 
   # AWS ECR Settings
-  ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
   ECR_REPOSITORY: mung_manager_dev_admin
   IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
 
