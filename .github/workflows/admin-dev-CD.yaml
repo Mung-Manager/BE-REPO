@@ -75,9 +75,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set current date as env variable
-        run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
-
       - name: Create env file
         run: |
           touch .env.admin
@@ -125,8 +122,8 @@ jobs:
 
       - name: Upload to S3
         run: |
-          zip -r deploy-${{ env.IMAGE_TAG }}-$NOW.zip deploy.sh docker-compose.yml ./nginx
-          aws s3 cp --region ap-northeast-2 --acl private ./deploy-${{ env.IMAGE_TAG }}-$NOW.zip s3://mung-manager-deploy/dev/
+          zip -r deploy-${{ env.IMAGE_TAG }}.zip deploy.sh docker-compose.yml ./nginx
+          aws s3 cp --region ap-northeast-2 --acl private ./deploy-${{ env.IMAGE_TAG }}.zip s3://mung-manager-deploy/dev/
 
       - name: Connect to SSH and AWS Deploy
         uses: appleboy/ssh-action@v1.0.3
@@ -137,8 +134,8 @@ jobs:
           port: ${{ env.DEV_EC2_PORT }}
           script: |
             cd ${{ env.DEV_EC2_PATH }}
-            aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/deploy-${{ env.IMAGE_TAG }}-$NOW.zip
-            unzip deploy-${{ env.IMAGE_TAG }}-$NOW.zip
+            aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/deploy-${{ env.IMAGE_TAG }}.zip
+            unzip deploy-${{ env.IMAGE_TAG }}.zip
             chmod +x deploy.sh
             ./deploy.sh
 
