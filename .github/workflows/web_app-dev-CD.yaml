@@ -117,8 +117,6 @@ jobs:
 
       - name: Connect to SSH and AWS Deploy
         uses: appleboy/ssh-action@v1.0.3
-        env:
-          IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
         with:
           key: ${{ secrets.DEV_EC2_KEY }}
           host: ${{ secrets.DEV_EC2_IP }}
@@ -126,11 +124,12 @@ jobs:
           port: ${{ secrets.DEV_EC2_PORT }}
           script: |
             cd ${{ secrets.DEV_EC2_PATH }}
-            aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/web_app/web_app-deploy-$IMAGE_TAG.zip .
-            unzip -o web_app-deploy-$IMAGE_TAG.zip
+            deploy_zip="web_app-deploy-${{ github.event.inputs.docker_image_tag }}.zip"
+            aws s3 cp --region ap-northeast-2 "s3://mung-manager-deploy/dev/web_app/$deploy_zip" .
+            unzip -o "$deploy_zip"
             sudo chmod +x web_app-deploy.sh
             ./web_app-deploy.sh
-            sudo rm -rf web_app-deploy-$IMAGE_TAG.zip
+            sudo rm -rf "$deploy_zip"
 
       - name: Notify Slack on Success
         if: success()
