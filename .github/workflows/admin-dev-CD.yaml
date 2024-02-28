@@ -135,7 +135,7 @@ jobs:
           script: |
             cd ${{ env.DEV_EC2_PATH }}
             aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/admin/admin-deploy-${{ env.IMAGE_TAG }}.zip .
-            unzip admin-deploy-${{ env.IMAGE_TAG }}.zip
+            unzip -n admin-deploy-${{ env.IMAGE_TAG }}.zip
             sudo chmod +x admin-deploy.sh
             ./admin-deploy.sh
             sudo rm -rf admin-deploy-${{ env.IMAGE_TAG }}.zip

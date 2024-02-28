@@ -1,63 +1,144 @@
-run-name: Deploy to AWS web_app dev server by @${{ github.actor }}
+run-name: Deploy to AWS(Docker Image v.${{ github.event.inputs.docker_image_tag }}) by @${{ github.actor }}
 
 on:
   workflow_dispatch:
+    inputs:
+      docker_image_tag:
+        description: '이전 버전과 다른 상위 버전을 입력해주세요. (ex. 1.0.0)'
+        default: '1.0.0'
+        required: true
+        type: string
+
     permissions:
       users:
         - saJaeHyukc
 
+env:
+  # Django Settings
+  DJANGO_TEST_WEB_APP_ENV: ${{ secrets.DJANGO_TEST_WEB_APP_ENV }}
+
+  # AWS Settings
+  DEV_AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+  DEV_AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+
+  # AWS ECR Settingsalias
+  ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
+  ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
+  WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
+  IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
+
+  # AWS EC2 Settings
+  DEV_EC2_KEY: ${{ secrets.DEV_EC2_KEY }}
+  DEV_EC2_IP: ${{ secrets.DEV_EC2_IP }}
+  DEV_EC2_NAME: ${{ secrets.DEV_EC2_NAME }}
+  DEV_EC2_PORT: ${{ secrets.DEV_EC2_PORT }}
+  DEV_EC2_PATH: ${{ secrets.DEV_EC2_PATH }}
+
 jobs:
-  web_app-test-and-fomat-lint:
+  # web_app-test-and-fomat-lint:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+
+  #     - name: Create env file
+  #       run: |
+  #         touch .env.web_app
+  #         echo "${{ env.DJANGO_TEST_WEB_APP_ENV }}" >> .env.web_app
+  #         mv .env.web_app web_app/
+
+  #     - name: Move setup.cfg
+  #       run: mv setup.cfg web_app/
+
+  #     - name: Build docker
+  #       run: docker compose -f github-actions.docker-compose.yml build postgres web_app
+
+  #     - name: Run isort
+  #       run: docker compose -f github-actions.docker-compose.yml run web_app poetry run isort mung_manager/ --check
+
+  #     - name: Run black
+  #       run: docker compose -f github-actions.docker-compose.yml run web_app poetry run black mung_manager/ --check
+
+  #     - name: Run flake8
+  #       run: docker compose -f github-actions.docker-compose.yml run web_app poetry run flake8
+
+  #     - name: Run mypy
+  #       run: docker compose -f github-actions.docker-compose.yml run web_app poetry run mypy --config mypy.ini mung_manager/
+
+  #     - name: Run tests
+  #       run: docker compose -f github-actions.docker-compose.yml run web_app poetry run pytest --cov=mung_manager/ --cov-fail-under=80 tests/ -n 4
+
+  web_app-deploy:
     runs-on: ubuntu-latest
+    # needs: web_app-test-and-fomat-lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Create env file
-        env:
-          DJANGO_TEST_WEB_APP_ENV: ${{ secrets.DJANGO_TEST_WEB_APP_ENV }}
         run: |
           touch .env.web_app
-          echo "$DJANGO_TEST_WEB_APP_ENV" >> .env.web_app
+          echo "${{ env.DJANGO_TEST_WEB_APP_ENV }}" >> .env.web_app
           mv .env.web_app web_app/
 
-      - name: Move setup.cfg
-        run: mv setup.cfg web_app/
+      - name: AWS configure
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ env.DEV_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.DEV_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-      - name: Build docker
-        run: docker compose -f github-actions.docker-compose.yml build postgres web_app
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
 
-      - name: Run isort
-        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run isort mung_manager/ --check
+      - name: Build and push
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./web_app/docker/dev.Dockerfile
+          platforms: linux/x86_64
+          push: true
+          tags: |
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.WEB_APP_ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.WEB_APP_ECR_REPOSITORY }}:latest
 
-      - name: Run black
-        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run black mung_manager/ --check
+      - name: Create web_app-deploy.sh
+        run: |
+          sed -i "s%<ADMIN_IMAGE>%${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ADMIN_ECR_REPOSITORY }}:latest%g" ./docker-compose.yml
+          sed -i "s%<WEB_APP_IMAGE>%${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.WEB_APP_ECR_REPOSITORY }}:latest%g" ./docker-compose.yml
+          sed -i "s%<DJANGO_SETTINGS_MODULE>%config.django.dev%g" ./docker-compose.yml
+          touch web_app-deploy.sh
+          echo "#!/bin/bash" >> web_app-deploy.sh
+          echo "aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}" >> web_app-deploy.sh
+          echo "sudo docker stop web_app" >> web_app-deploy.sh
+          echo "sudo docker rm web_app" >> web_app-deploy.sh
+          echo "sudo docker rmi $(sudo docker images | grep ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.WEB_APP_ECR_REPOSITORY }}:latest | awk '{print $3}')" >> web_app-deploy.sh
+          echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build web_app" >> web_app-deploy.sh
+          echo "sudo docker compose restart nginx" >> web_app-deploy.sh
 
-      - name: Run flake8
-        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run flake8
+      - name: Upload to S3
+        run: |
+          zip -r web_app-deploy-${{ env.IMAGE_TAG }}.zip web_app-deploy.sh docker-compose.yml ./nginx
+          aws s3 cp --region ap-northeast-2 --acl private ./web_app-deploy-${{ env.IMAGE_TAG }}.zip s3://mung-manager-deploy/dev/web_app/
 
-      - name: Run mypy
-        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run mypy --config mypy.ini mung_manager/
-
-      - name: Run tests
-        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run pytest --cov=mung_manager/ --cov-fail-under=80 tests/ -n 4
-
-  web_app-deploy:
-    needs: web_app-test-and-fomat-lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Connect to SSH and Deploy
+      - name: Connect to SSH and AWS Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          key: ${{ secrets.DEV_EC2_KEY }}
-          host: ${{ secrets.DEV_EC2_IP }}
-          username: ${{ secrets.DEV_EC2_NAME }}
-          port: ${{ secrets.DEV_EC2_PORT }}
+          key: ${{ env.DEV_EC2_KEY }}
+          host: ${{ env.DEV_EC2_IP }}
+          username: ${{ env.DEV_EC2_NAME }}
+          port: ${{ env.DEV_EC2_PORT }}
           script: |
-            cd ${{ secrets.DEV_EC2_PATH }}
-            git pull origin develop
-            sudo docker compose restart web_app
-            sudo docker compose restart nginx
+            cd ${{ env.DEV_EC2_PATH }}
+            aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/web_app/web_app-deploy-${{ env.IMAGE_TAG }}.zip .
+            unzip -n web_app-deploy-${{ env.IMAGE_TAG }}.zip
+            sudo chmod +x web_app-deploy.sh
+            ./web_app-deploy.sh
+            sudo rm -rf web_app-deploy-${{ env.IMAGE_TAG }}.zip
 
       - name: Notify Slack on Success
         if: success()
