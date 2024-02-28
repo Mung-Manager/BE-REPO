@@ -93,15 +93,10 @@ jobs:
           context: .
           file: ./admin/docker/dev.Dockerfile
           platforms: linux/x86_64
-          env:
-            ECR_PUBLIC_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-            ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
-            ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
-            IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
           push: true
           tags: |
-            $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG
-            $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$ADMIN_ECR_REPOSITORY:latest
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/mung_manager_dev_admin:${{ github.event.inputs.docker_image_tag }}
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/mung_manager_dev_admin:latest
 
       - name: Create admin-deploy.sh
         env:
