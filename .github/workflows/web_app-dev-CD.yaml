@@ -76,9 +76,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Create env file
+        env:
+          DJANGO_TEST_WEB_APP_ENV: ${{ secrets.DJANGO_TEST_WEB_APP_ENV }}
         run: |
           touch .env.web_app
-          echo "${{ env.DJANGO_TEST_WEB_APP_ENV }}" >> .env.web_app
+          echo "$DJANGO_TEST_WEB_APP_ENV" >> .env.web_app
           mv .env.web_app web_app/
 
       - name: AWS configure
