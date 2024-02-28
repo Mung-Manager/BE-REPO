@@ -26,6 +26,7 @@ env:
   ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
   WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
   IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
+  DATE: ${{ steps.date.outputs.date }}
 
 jobs:
   # admin-test-and-fomat-lint:
@@ -67,6 +68,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set current date as env variable
+        run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
 
       - name: Create env file
         run: |
@@ -115,22 +119,22 @@ jobs:
 
       - name: Upload to S3
         run: |
-          zip -r deploy-${{ env.IMAGE_TAG }}.zip deploy.sh docker-compose.yml ./nginx
-          aws s3 cp --region ap-northeast-2 --acl private ./deploy-${{ env.IMAGE_TAG }}.zip s3://mung-manager-deploy/dev/
+          zip -r deploy-${{ env.IMAGE_TAG }}-$NOW.zip deploy.sh docker-compose.yml ./nginx
+          aws s3 cp --region ap-northeast-2 --acl private ./deploy-${{ env.IMAGE_TAG }}-$NOW.zip s3://mung-manager-deploy/dev/
 
-      # - name: Connect to SSH and AWS Deploy
-      #   uses: appleboy/ssh-action@v1.0.3
-      #   with:
-      #     key: ${{ secrets.DEV_EC2_KEY }}
-      #     host: ${{ secrets.DEV_EC2_IP }}
-      #     username: ${{ secrets.DEV_EC2_NAME }}
-      #     port: ${{ secrets.DEV_EC2_PORT }}
-      #   script: |
-      #     cd ${{ secrets.DEV_EC2_PATH }}
-      #     aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/deploy-$IMAGE_TAG.zip .
-      #     unzip deploy-$IMAGE_TAG.zip
-      #     chmod +x deploy.sh
-      #     ./deploy.sh
+      - name: Connect to SSH and AWS Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          key: ${{ secrets.DEV_EC2_KEY }}
+          host: ${{ secrets.DEV_EC2_IP }}
+          username: ${{ secrets.DEV_EC2_NAME }}
+          port: ${{ secrets.DEV_EC2_PORT }}
+        script: |
+          cd ${{ secrets.DEV_EC2_PATH }}
+          aws s3 cp --region ap-northeast-2 s3://mung-manager-deploy/dev/deploy-${{ env.IMAGE_TAG }}-$NOW.zip
+          unzip deploy-${{ env.IMAGE_TAG }}-$NOW.zip
+          chmod +x deploy.sh
+          ./deploy.sh
 
       - name: Notify Slack on Success
         if: success()
