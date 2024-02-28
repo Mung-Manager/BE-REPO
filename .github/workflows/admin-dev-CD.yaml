@@ -75,15 +75,29 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build docker file and push to ECR
+      - name: Build and push
+        id: build-and-push
+        uses: docker/build-push-action@v5
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
-          WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
+          ECR_REPOSITORY: mung_manager_dev_admin
           IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG -f ./admin/docker/dev.Dockerfile .
-          docker push $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG
+        with:
+          context: .
+          file: ./admin/docker/dev.Dockerfile
+          platforms: linux/x86_64
+          push: true
+          tags: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      # - name: Build docker file and push to ECR
+      #   env:
+      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
+      #     WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
+      #     IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
+      #   run: |
+      #     docker build -t $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG -f ./admin/docker/dev.Dockerfile .
+      #     docker push $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:$IMAGE_TAG
       # docker push $ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:latest
       #     sed -i "s%<WEB_APP_IMAGE>%$ECR_REGISTRY/$WEB_APP_ECR_REPOSITORY:latest%g" ./docker-compose.yml
       #     sed -i "s%<ADMIN_IMAGE>%$ECR_REGISTRY/$ADMIN_ECR_REPOSITORY:latest%g" ./docker-compose.yml
