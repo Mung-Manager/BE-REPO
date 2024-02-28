@@ -116,7 +116,7 @@ jobs:
           echo "aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}" >> admin-deploy.sh
           echo "sudo docker stop admin" >> admin-deploy.sh
           echo "sudo docker rm admin" >> admin-deploy.sh
-          echo "sudo docker rmi $(sudo docker images | grep ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ADMIN_ECR_REPOSITORY }}:latest | awk '{print $3}')" >> admin-deploy.sh
+          echo "sudo docker rmi $(spublic.ecr.aws/i3l4f3k5/mung_manager_dev_admin:latestudo docker images | grep ${{ steps.login-ecr-public.outputs.registry }}/${{ env.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ env.ADMIN_ECR_REPOSITORY }}:latest | awk '{print $3}')" >> admin-deploy.sh
           echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build admin" >> admin-deploy.sh
           echo "sudo docker compose restart nginx" >> admin-deploy.sh
 
