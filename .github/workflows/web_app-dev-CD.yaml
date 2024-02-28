@@ -81,7 +81,7 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v5
         with:
-          context: ./web_app
+          context: .
           file: ./web_app/docker/dev.Dockerfile
           platforms: linux/x86_64
           push: true
