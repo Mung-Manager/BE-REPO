@@ -83,7 +83,7 @@ jobs:
         env:
           ECR_PUBLIC_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
-          WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
+          ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
           IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
         with:
           context: ./admin
