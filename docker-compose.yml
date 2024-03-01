@@ -11,7 +11,7 @@ volumes:
 
 services:
   guest_service:
-    container_name : guest
+    container_name : guest_service
     image: <GUEST_IMAGE> #shell script will replace this
     entrypoint: sh -c "poetry run python manage.py collectstatic --no-input && poetry run python manage.py migrate && poetry run gunicorn config.wsgi --workers=5 -b 0.0.0.0:8000"
     volumes:
@@ -25,7 +25,7 @@ services:
     restart: always
 
   manager_service:
-    container_name : manager
+    container_name : manager_service
     image: <MANAGER_IMAGE> #shell script will replace this
     entrypoint: sh -c "poetry run python manage.py collectstatic --no-input && poetry run python manage.py migrate && poetry run gunicorn config.wsgi --workers=5 -b 0.0.0.0:8001"
     volumes:
@@ -39,7 +39,7 @@ services:
     restart: always
 
   admin:
-    container_name : admin
+    container_name : admin_service
     image: <ADMIN_IMAGE> # shell script will replace this
     entrypoint: sh -c "poetry run python manage.py collectstatic --no-input && poetry run python manage.py migrate && poetry run gunicorn config.wsgi --workers=5 -b 0.0.0.0:8002"
     volumes:
