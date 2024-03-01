@@ -26,28 +26,28 @@ jobs:
         run: |
           touch .env.guest
           echo "$DJANGO_TEST_GUEST_ENV" >> .env.guest
-          mv .env.guest guest/
+          mv .env.guest guest-service/
 
       - name: Move setup.cfg
-        run: mv setup.cfg guest/
+        run: mv setup.cfg guest-service/
 
       - name: Build docker
-        run: docker compose -f github-actions.docker-compose.yml build postgres guest
+        run: docker compose -f github-actions.docker-compose.yml build postgres-db guest-service
 
       - name: Run isort
-        run: docker compose -f github-actions.docker-compose.yml run guest poetry run isort mung_manager/ --check
+        run: docker compose -f github-actions.docker-compose.yml run guest-service poetry run isort mung_manager/ --check
 
       - name: Run black
-        run: docker compose -f github-actions.docker-compose.yml run guest poetry run black mung_manager/ --check
+        run: docker compose -f github-actions.docker-compose.yml run guest-service poetry run black mung_manager/ --check
 
       - name: Run flake8
-        run: docker compose -f github-actions.docker-compose.yml run guest poetry run flake8
+        run: docker compose -f github-actions.docker-compose.yml run guest-service poetry run flake8
 
       - name: Run mypy
-        run: docker compose -f github-actions.docker-compose.yml run guest poetry run mypy --config mypy.ini mung_manager/
+        run: docker compose -f github-actions.docker-compose.yml run guest-service poetry run mypy --config mypy.ini mung_manager/
 
       - name: Run tests
-        run: docker compose -f github-actions.docker-compose.yml run guest poetry run pytest --cov=mung_manager/ --cov-fail-under=80 tests/ -n 4
+        run: docker compose -f github-actions.docker-compose.yml run guest-service poetry run pytest --cov=mung_manager/ --cov-fail-under=80 tests/ -n 4
 
   guest-deploy:
     runs-on: ubuntu-latest
@@ -62,7 +62,7 @@ jobs:
         run: |
           touch .env.guest
           echo "$DJANGO_TEST_GUEST_ENV" >> .env.guest
-          mv .env.guest guest/
+          mv .env.guest guest-service/
 
       - name: AWS configure
         uses: aws-actions/configure-aws-credentials@v1
@@ -82,7 +82,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./guest/docker/dev.Dockerfile
+          file: ./guest-service/docker/dev.Dockerfile
           platforms: linux/x86_64
           push: true
           tags: |
@@ -103,8 +103,8 @@ jobs:
           sed -i "s%<DJANGO_SETTINGS_MODULE>%config.django.dev%g" ./docker-compose.yml
           touch guest-deploy.sh
           echo "#!/bin/bash" >> guest-deploy.sh
-          echo "sudo docker stop guest" >> guest-deploy.sh
-          echo "sudo docker rm guest" >> guest-deploy.sh
+          echo "sudo docker stop guest-service" >> guest-deploy.sh
+          echo "sudo docker rm guest-service" >> guest-deploy.sh
           echo "sudo docker rmi $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$GUEST_ECR_REPOSITORY:latest" >> guest-deploy.sh
           echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build guest" >> guest-deploy.sh
           echo "sudo docker compose restart nginx" >> guest-deploy.sh

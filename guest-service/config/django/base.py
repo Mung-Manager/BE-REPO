@@ -3,7 +3,7 @@ import logging
 
 from config.env import BASE_DIR, APPS_DIR, env
 
-env.read_env(os.path.join(BASE_DIR, ".env.manager"))
+env.read_env(os.path.join(BASE_DIR, ".env.guest"))
 
 logger = logging.getLogger("django")
 
@@ -114,10 +114,10 @@ APPEND_SLASH = False
 
 # Static files (CSS, JavaScript, Images)
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATIC_URL = "/web-app/static/"
+STATIC_URL = "/guest/static/"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/web-app/media/"
+MEDIA_URL = "/guest/media/"
 
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ("djangorestframework_camel_case.render.CamelCaseJSONRenderer",),
