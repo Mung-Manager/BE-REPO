@@ -1,4 +1,4 @@
-run-name: Deploy to AWS(Web App Docker Image v.${{ github.event.inputs.docker_image_tag }}) by @${{ github.actor }}
+run-name: Deploy to AWS(Guest Docker Image v.${{ github.event.inputs.docker_image_tag }}) by @${{ github.actor }}
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ on:
         - saJaeHyukc
 
 jobs:
-  web_app-test-and-fomat-lint:
+  guest-test-and-fomat-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -22,47 +22,47 @@ jobs:
 
       - name: Create env file
         env:
-          DJANGO_TEST_WEB_APP_ENV: ${{ secrets.DJANGO_TEST_WEB_APP_ENV }}
+          DJANGO_TEST_GUEST_ENV: ${{ secrets.DJANGO_TEST_GUEST_ENV }}
         run: |
-          touch .env.web_app
-          echo "$DJANGO_TEST_WEB_APP_ENV" >> .env.web_app
-          mv .env.web_app web_app/
+          touch .env.guest
+          echo "$DJANGO_TEST_GUEST_ENV" >> .env.guest
+          mv .env.guest guest/
 
       - name: Move setup.cfg
-        run: mv setup.cfg web_app/
+        run: mv setup.cfg guest/
 
       - name: Build docker
-        run: docker compose -f github-actions.docker-compose.yml build postgres web_app
+        run: docker compose -f github-actions.docker-compose.yml build postgres guest
 
       - name: Run isort
-        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run isort mung_manager/ --check
+        run: docker compose -f github-actions.docker-compose.yml run guest poetry run isort mung_manager/ --check
 
       - name: Run black
-        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run black mung_manager/ --check
+        run: docker compose -f github-actions.docker-compose.yml run guest poetry run black mung_manager/ --check
 
       - name: Run flake8
-        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run flake8
+        run: docker compose -f github-actions.docker-compose.yml run guest poetry run flake8
 
       - name: Run mypy
-        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run mypy --config mypy.ini mung_manager/
+        run: docker compose -f github-actions.docker-compose.yml run guest poetry run mypy --config mypy.ini mung_manager/
 
       - name: Run tests
-        run: docker compose -f github-actions.docker-compose.yml run web_app poetry run pytest --cov=mung_manager/ --cov-fail-under=80 tests/ -n 4
+        run: docker compose -f github-actions.docker-compose.yml run guest poetry run pytest --cov=mung_manager/ --cov-fail-under=80 tests/ -n 4
 
-  web_app-deploy:
+  guest-deploy:
     runs-on: ubuntu-latest
-    needs: web_app-test-and-fomat-lint
+    needs: guest-test-and-fomat-lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Create env file
         env:
-          DJANGO_TEST_WEB_APP_ENV: ${{ secrets.DJANGO_TEST_WEB_APP_ENV }}
+          DJANGO_TEST_GUEST_ENV: ${{ secrets.DJANGO_TEST_GUEST_ENV }}
         run: |
-          touch .env.web_app
-          echo "$DJANGO_TEST_WEB_APP_ENV" >> .env.web_app
-          mv .env.web_app web_app/
+          touch .env.guest
+          echo "$DJANGO_TEST_GUEST_ENV" >> .env.guest
+          mv .env.guest guest/
 
       - name: AWS configure
         uses: aws-actions/configure-aws-credentials@v1
@@ -82,37 +82,39 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./web_app/docker/dev.Dockerfile
+          file: ./guest/docker/dev.Dockerfile
           platforms: linux/x86_64
           push: true
           tags: |
-            ${{ steps.login-ecr-public.outputs.registry }}/${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/mung_manager_dev_web_app:${{ github.event.inputs.docker_image_tag }}
-            ${{ steps.login-ecr-public.outputs.registry }}/${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/mung_manager_dev_web_app:latest
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/mung_manager_dev_guest:${{ github.event.inputs.docker_image_tag }}
+            ${{ steps.login-ecr-public.outputs.registry }}/${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/mung_manager_dev_guest:latest
 
-      - name: Create web_app-deploy.sh
+      - name: Create guest-deploy.sh
         env:
           ECR_PUBLIC_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
           ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
-          WEB_APP_ECR_REPOSITORY: mung_manager_dev_web_app
+          GUEST_ECR_REPOSITORY: mung_manager_dev_guest
+          MANAGER_ECR_REPOSITORY: mung_manager_dev_manager
         run: |
           sed -i "s%<ADMIN_IMAGE>%$ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$ADMIN_ECR_REPOSITORY:latest%g" ./docker-compose.yml
-          sed -i "s%<WEB_APP_IMAGE>%$ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$WEB_APP_ECR_REPOSITORY:latest%g" ./docker-compose.yml
+          sed -i "s%<GUEST_IMAGE>%$ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$GUEST_ECR_REPOSITORY:latest%g" ./docker-compose.yml
+          sed -i "s%<MANAGER_IMAGE>%$ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$MANAGER_ECR_REPOSITORY:latest%g" ./docker-compose.yml
           sed -i "s%<DJANGO_SETTINGS_MODULE>%config.django.dev%g" ./docker-compose.yml
-          touch web_app-deploy.sh
-          echo "#!/bin/bash" >> web_app-deploy.sh
-          echo "sudo docker stop web_app" >> web_app-deploy.sh
-          echo "sudo docker rm web_app" >> web_app-deploy.sh
-          echo "sudo docker rmi $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$WEB_APP_ECR_REPOSITORY:latest" >> web_app-deploy.sh
-          echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build web_app" >> web_app-deploy.sh
-          echo "sudo docker compose restart nginx" >> web_app-deploy.sh
+          touch guest-deploy.sh
+          echo "#!/bin/bash" >> guest-deploy.sh
+          echo "sudo docker stop guest" >> guest-deploy.sh
+          echo "sudo docker rm guest" >> guest-deploy.sh
+          echo "sudo docker rmi $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$GUEST_ECR_REPOSITORY:latest" >> guest-deploy.sh
+          echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build guest" >> guest-deploy.sh
+          echo "sudo docker compose restart nginx" >> guest-deploy.sh
 
       - name: Upload to S3
         env:
           IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }}
         run: |
-          zip -r web_app-deploy-$IMAGE_TAG.zip web_app-deploy.sh docker-compose.yml ./nginx
-          aws s3 cp --region ap-northeast-2 --acl private ./web_app-deploy-$IMAGE_TAG.zip s3://mung-manager-deploy/dev/web_app/
+          zip -r guest-deploy-$IMAGE_TAG.zip guest-deploy.sh docker-compose.yml ./nginx
+          aws s3 cp --region ap-northeast-2 --acl private ./guest-deploy-$IMAGE_TAG.zip s3://mung-manager-deploy/dev/guest/
 
       - name: Connect to SSH and AWS Deploy
         uses: appleboy/ssh-action@v1.0.3
@@ -123,11 +125,11 @@ jobs:
           port: ${{ secrets.DEV_EC2_PORT }}
           script: |
             cd ${{ secrets.DEV_EC2_PATH }}
-            deploy_zip="web_app-deploy-${{ github.event.inputs.docker_image_tag }}.zip"
-            aws s3 cp --region ap-northeast-2 "s3://mung-manager-deploy/dev/web_app/$deploy_zip" .
+            deploy_zip="guest-deploy-${{ github.event.inputs.docker_image_tag }}.zip"
+            aws s3 cp --region ap-northeast-2 "s3://mung-manager-deploy/dev/guest/$deploy_zip" .
             unzip -o "$deploy_zip"
-            sudo chmod +x web_app-deploy.sh
-            ./web_app-deploy.sh
+            sudo chmod +x guest-deploy.sh
+            ./guest-deploy.sh
             sudo rm -rf "$deploy_zip"
 
       - name: Notify Slack on Success
@@ -143,7 +145,7 @@ jobs:
                   "color": "#36a64f",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action WEB APP DEV-CD 성공 😄",
+                  "text": "GitHub Action Guest DEV-CD 성공 😄",
                   "fields": [
                     {
                       "title": "Repository",
@@ -176,7 +178,7 @@ jobs:
                   "color": "#ff0000",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action WEB APP DEV-CD 실패 😭",
+                  "text": "GitHub Action Guest DEV-CD 실패 😭",
                   "fields": [
                     {
                       "title": "Repository",

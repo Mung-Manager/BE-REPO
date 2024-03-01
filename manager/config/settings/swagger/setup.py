@@ -41,26 +41,8 @@ class SwaggerSetup:
         from drf_yasg import openapi
         from drf_yasg.views import get_schema_view
         from rest_framework.permissions import AllowAny
-        from config.settings.swagger.schemas import GuestAPISchemeGenerator, ManagerSchemeGenerator
 
-        guest_schema_view = get_schema_view(
-            openapi.Info(
-                title="Mung Manager Guest API",
-                default_version="v1",
-                description=(
-                    "자세한 문서는 [여기](https://hiallen.notion.site/857f09c655d647dcb8eb1d8aea236e95?"
-                    "v=acca72eb88a74c468d3c62cf9d751b1c&pvs=4)를 참고해주세요."
-                ),
-                terms_of_service="",
-                contact=openapi.Contact(email="wogur981208@gmail.com"),
-                license=openapi.License(name="Mung Manager Team"),
-            ),
-            public=True,
-            generator_class=GuestAPISchemeGenerator,
-            permission_classes=(AllowAny,),
-        )
-
-        manager_schema_view = get_schema_view(
+        schema_view = get_schema_view(
             openapi.Info(
                 title="Mung Manager Manager API",
                 default_version="v1",
@@ -73,11 +55,9 @@ class SwaggerSetup:
                 license=openapi.License(name="Mung Manager Team"),
             ),
             public=True,
-            generator_class=ManagerSchemeGenerator,
             permission_classes=(AllowAny,),
         )
 
         return urlpatterns + [
-            path("guest/swagger/docs", guest_schema_view.with_ui("swagger", cache_timeout=0), name="guest-schema-swagger-ui"),
-            path("manager/swagger/docs", manager_schema_view.with_ui("swagger", cache_timeout=0), name="manager-schema-swagger-ui"),
+            path("manager/swagger/docs", schema_view.with_ui("swagger", cache_timeout=0), name="manager-schema-swagger-ui"),
         ]

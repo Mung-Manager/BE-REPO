@@ -56,7 +56,6 @@ profile = "black"
 filter_files = true
 skip_glob = ["*/migrations/*", "*/config/*"]
 
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
