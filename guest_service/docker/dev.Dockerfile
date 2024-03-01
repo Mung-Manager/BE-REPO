@@ -26,7 +26,7 @@ RUN mkdir /guest/
 WORKDIR /guest/
 
 # Install dependencies
-RUN poetry install --without admin
+RUN poetry install --without test,admin
 
 # Copy the rest of the application files
-COPY . /guest/
+COPY ./guest_service/ .

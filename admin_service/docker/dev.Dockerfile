@@ -22,11 +22,11 @@ ENV PATH="${PATH}:${POETRY_VENV}/bin"
 COPY pyproject.toml .
 
 # Set working directory
-RUN mkdir /guest/
-WORKDIR /guest/
+RUN mkdir /admin/
+WORKDIR /admin/
 
 # Install dependencies
-RUN poetry install --without test,admin
+RUN poetry install --without test,web-app
 
 # Copy the rest of the application files
-COPY ./guest/ .
+COPY . /admin_service/

@@ -29,4 +29,4 @@ WORKDIR /manager/
 RUN poetry install --without test,admin
 
 # Copy the rest of the application files
-COPY ./manager/ .
+COPY . /manager_service/

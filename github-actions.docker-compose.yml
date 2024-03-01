@@ -14,45 +14,45 @@ services:
       - POSTGRES_DB=github_actions
     restart: on-failure
 
-  guest-service:
+  guest_service:
     build:
       context: .
-      dockerfile: guest-service/docker/local.Dockerfile
+      dockerfile: guest_service/docker/local.Dockerfile
     environment:
       - GITHUB_WORKFLOW=True
     command: poetry run python manage.py runserver
     volumes:
-      - ./guest/:/guest-service/
+      - ./guest/:/guest_service/
     ports:
       - "8000:8000"
     depends_on:
       - postgres-db
     restart: on-failure
 
-  manager-service:
+  manager_service:
     build:
       context: .
-      dockerfile: manager-service/docker/local.Dockerfile
+      dockerfile: manager_service/docker/local.Dockerfile
     environment:
       - GITHUB_WORKFLOW=True
     command: poetry run python manage.py runserver
     volumes:
-      - ./manager/:/manager-service/
+      - ./manager/:/manager_service/
     ports:
       - "8001:8001"
     depends_on:
       - postgres-db
     restart: on-failure
 
-  admin-service:
+  admin_service:
     build:
       context: .
-      dockerfile: admin-service/docker/local.Dockerfile
+      dockerfile: admin_service/docker/local.Dockerfile
     environment:
       - GITHUB_WORKFLOW=True
     command: poetry run python manage.py runserver
     volumes:
-      - ./admin/:/admin-service/
+      - ./admin/:/admin_service/
     ports:
       - "8002:8002"
     depends_on:
