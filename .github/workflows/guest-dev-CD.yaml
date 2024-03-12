@@ -106,7 +106,7 @@ jobs:
           echo "sudo docker stop guest_service" >> guest-deploy.sh
           echo "sudo docker rm guest_service" >> guest-deploy.sh
           echo "sudo docker rmi $ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$GUEST_ECR_REPOSITORY:latest" >> guest-deploy.sh
-          echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build guest" >> guest-deploy.sh
+          echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build guest_service" >> guest-deploy.sh
           echo "sudo docker compose restart nginx" >> guest-deploy.sh
 
       - name: Upload to S3
