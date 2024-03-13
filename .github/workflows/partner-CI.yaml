@@ -1,11 +1,11 @@
-name: manager-CI
+name: partner-CI
 
 on:
   pull_request:
     branches: [ "develop", "main" ]
 
 jobs:
-  manager-format-lint:
+  partner-format-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -13,29 +13,29 @@ jobs:
 
       - name: Create env file
         env:
-          DJANGO_TEST_MANAGER_ENV: ${{ secrets.DJANGO_TEST_MANAGER_ENV }}
+          DJANGO_TEST_PARTNER_ENV: ${{ secrets.DJANGO_TEST_PARTNER_ENV }}
         run: |
-          touch .env.manager
-          echo "$DJANGO_TEST_MANAGER_ENV" >> .env.manager
-          mv .env.manager manager_service/
+          touch .env.partner
+          echo "$DJANGO_TEST_PARTNER_ENV" >> .env.partner
+          mv .env.partner partner_service/
 
       - name: Move setup.cfg
-        run: mv setup.cfg manager_service/
+        run: mv setup.cfg partner_service/
 
       - name: Build docker
-        run: docker compose -f github-actions.docker-compose.yml build postgres-db manager_service
+        run: docker compose -f github-actions.docker-compose.yml build postgres-db partner_service
 
       - name: Run isort
-        run: docker compose -f github-actions.docker-compose.yml run manager_service poetry run isort mung_manager/ --check
+        run: docker compose -f github-actions.docker-compose.yml run partner_service poetry run isort mung_manager/ --check
 
       - name: Run black
-        run: docker compose -f github-actions.docker-compose.yml run manager_service poetry run black mung_manager/ --check
+        run: docker compose -f github-actions.docker-compose.yml run partner_service poetry run black mung_manager/ --check
 
       - name: Run flake8
-        run: docker compose -f github-actions.docker-compose.yml run manager_service poetry run flake8
+        run: docker compose -f github-actions.docker-compose.yml run partner_service poetry run flake8
 
       - name: Run mypy
-        run: docker compose -f github-actions.docker-compose.yml run manager_service poetry run mypy --config mypy.ini mung_manager/
+        run: docker compose -f github-actions.docker-compose.yml run partner_service poetry run mypy --config mypy.ini mung_manager/
 
       - name: Notify Slack on Success
         if: success()
@@ -50,7 +50,7 @@ jobs:
                   "color": "#36a64f",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action manager format-lint CI 성공 😄",
+                  "text": "GitHub Action partner format-lint CI 성공 😄",
                   "fields": [
                     {
                       "title": "Repository",
@@ -84,7 +84,7 @@ jobs:
                   "color": "#ff0000",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action manager format-lint CI 실패 😭",
+                  "text": "GitHub Action partner format-lint CI 실패 😭",
                   "fields": [
                     {
                       "title": "Repository",
@@ -104,7 +104,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  manager-test:
+  partner-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -112,18 +112,18 @@ jobs:
 
       - name: Create env file
         env:
-          DJANGO_TEST_MANAGER_ENV: ${{ secrets.DJANGO_TEST_MANAGER_ENV }}
+          DJANGO_TEST_PARTNER_ENV: ${{ secrets.DJANGO_TEST_PARTNER_ENV }}
         run: |
-          touch .env.manager
-          echo "$DJANGO_TEST_MANAGER_ENV" >> .env.manager
-          mv .env.manager manager_service/
+          touch .env.partner
+          echo "$DJANGO_TEST_PARTNER_ENV" >> .env.partner
+          mv .env.partner partner_service/
 
       - name: Build docker
-        run: docker compose -f github-actions.docker-compose.yml build postgres-db manager_service
+        run: docker compose -f github-actions.docker-compose.yml build postgres-db partner_service
 
       - name: Run tests
-        run:  docker compose -f github-actions.docker-compose.yml run manager_service poetry run pytest --cov=mung_manager --cov-fail-under=80 tests/ -n 4 &&
-              docker compose -f github-actions.docker-compose.yml run manager_service poetry run pytest --cov=mung_manager tests/ --cov-report=xml -n 4
+        run:  docker compose -f github-actions.docker-compose.yml run partner_service poetry run pytest --cov=mung_manager --cov-fail-under=80 tests/ -n 4 &&
+              docker compose -f github-actions.docker-compose.yml run partner_service poetry run pytest --cov=mung_manager tests/ --cov-report=xml -n 4
 
       - name: Report coverage to codecov
         uses: codecov/codecov-action@v3
@@ -144,7 +144,7 @@ jobs:
                   "color": "#36a64f",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action manager test CI 성공 😄",
+                  "text": "GitHub Action partner test CI 성공 😄",
                   "fields": [
                     {
                       "title": "Repository",
@@ -178,7 +178,7 @@ jobs:
                   "color": "#ff0000",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action manager test CI 실패 😭",
+                  "text": "GitHub Action partner test CI 실패 😭",
                   "fields": [
                     {
                       "title": "Repository",

@@ -95,11 +95,11 @@ jobs:
           ECR_PUBLIC_REGISTRY_ALIAS: ${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}
           ADMIN_ECR_REPOSITORY: mung_manager_dev_admin
           GUEST_ECR_REPOSITORY: mung_manager_dev_guest
-          MANAGER_ECR_REPOSITORY: mung_manager_dev_manager
+          PARTNER_ECR_REPOSITORY: mung_manager_dev_partner
         run: |
           sed -i "s%<ADMIN_IMAGE>%$ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$ADMIN_ECR_REPOSITORY:latest%g" ./docker-compose.yml
           sed -i "s%<GUEST_IMAGE>%$ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$GUEST_ECR_REPOSITORY:latest%g" ./docker-compose.yml
-          sed -i "s%<MANAGER_IMAGE>%$ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$MANAGER_ECR_REPOSITORY:latest%g" ./docker-compose.yml
+          sed -i "s%<PARTNER_IMAGE>%$ECR_PUBLIC_REGISTRY/$ECR_PUBLIC_REGISTRY_ALIAS/$PARTNER_ECR_REPOSITORY:latest%g" ./docker-compose.yml
           sed -i "s%<DJANGO_SETTINGS_MODULE>%config.django.dev%g" ./docker-compose.yml
           touch guest-deploy.sh
           echo "#!/bin/bash" >> guest-deploy.sh

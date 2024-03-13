@@ -3,8 +3,8 @@ version: '3.9'
 volumes:
   guest_django_media: {}
   guest_django_static: {}
-  manager_django_media: {}
-  manager_django_static: {}
+  partner_django_media: {}
+  partner_django_static: {}
   admin_django_media: {}
   admin_django_static: {}
   nginx_log: {}
@@ -26,14 +26,14 @@ services:
     networks:
       - app_net
 
-  manager_service:
-    container_name : manager_service
-    image: <MANAGER_IMAGE> #shell script will replace this
+  partner_service:
+    container_name : partner_service
+    image: <PARTNER_IMAGE> #shell script will replace this
     entrypoint: sh -c "poetry run python manage.py collectstatic --no-input && poetry run python manage.py migrate && poetry run gunicorn config.wsgi --workers=5 -b 0.0.0.0:8001"
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - manager_django_media:/manager/media/
-      - manager_django_static:/manager/static/
+      - partner_django_media:/partner/media/
+      - partner_django_static:/partner/static/
     environment:
       - DJANGO_SETTINGS_MODULE=<DJANGO_SETTINGS_MODULE> #shell script will replace this
     expose:
@@ -71,8 +71,8 @@ services:
       - admin_django_static:/admin/static/
       - guest_django_media:/guest/media/
       - guest_django_static:/guest/static/
-      - manager_django_media:/manager/media/
-      - manager_django_static:/manager/static/
+      - partner_django_media:/partner/media/
+      - partner_django_static:/partner/static/
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
     ports:

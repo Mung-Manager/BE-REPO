@@ -44,7 +44,7 @@ class SwaggerSetup:
 
         schema_view = get_schema_view(
             openapi.Info(
-                title="Mung Manager Manager API",
+                title="Mung Manager Partner API",
                 default_version="v1",
                 description=(
                     "자세한 문서는 [여기](https://hiallen.notion.site/e921b91dc5784e289d9a636f53a80d05?"
@@ -59,5 +59,5 @@ class SwaggerSetup:
         )
 
         return urlpatterns + [
-            path("manager/swagger/docs", schema_view.with_ui("swagger", cache_timeout=0), name="manager-schema-swagger-ui"),
+            path("partner/swagger/docs", schema_view.with_ui("swagger", cache_timeout=0), name="partner-schema-swagger-ui"),
         ]
