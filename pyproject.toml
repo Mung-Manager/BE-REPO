@@ -12,6 +12,7 @@ gunicorn = "^21.2.0"
 psycopg2-binary = "^2.9.9"
 pillow = "^10.2.0"
 attrs = "^23.2.0"
+requests = "^2.31.0"
 
 [tool.poetry.group.web-app.dependencies]
 djangorestframework = "^3.14.0"
