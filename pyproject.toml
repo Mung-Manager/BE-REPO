@@ -17,7 +17,7 @@ attrs = "^23.2.0"
 djangorestframework = "^3.14.0"
 django-cors-headers = "^4.2.0"
 drf-yasg = "^1.21.7"
-djangorestframework-simplejwt = "^5.3.0"
+djangorestframework-simplejwt = "5.3.0"
 djangorestframework-camel-case = "^1.4.2"
 
 [tool.poetry.group.admin.dependencies]
