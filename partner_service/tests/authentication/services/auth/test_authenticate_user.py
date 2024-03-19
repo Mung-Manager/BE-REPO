@@ -25,8 +25,8 @@ class TestAuthenticateUser:
         """
         user = self.auth_service.authenticate_user(deleted_partner_user)
 
-        assert user.is_deleted == False
-        assert user.deleted_at == None
+        assert not user.is_deleted
+        assert user.deleted_at is None
         assert user.last_login is not None
 
     def test_authenticate_user_fail_inactive_user(self, inactive_partner_user):
