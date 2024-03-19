@@ -10,6 +10,12 @@ ENV POETRY_VERSION=1.6.1
 ENV POETRY_HOME=/opt/poetry
 ENV POETRY_VENV=/opt/poetry-venv
 
+# Install GDAL and PROJ
+RUN apt-get update \
+    && apt-get install -y binutils \
+	libproj-dev \
+	gdal-bin
+
 # Install Poetry
 RUN python3 -m venv $POETRY_VENV \
     && $POETRY_VENV/bin/pip install -U pip setuptools \

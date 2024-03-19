@@ -1,71 +1,71 @@
-# from django.contrib.auth.models import User
+import pytest
+from mung_manager.common.pagination import LimitOffsetPagination, get_paginated_data
+from mung_manager.users.models import User
+from rest_framework import serializers, status
+from rest_framework.response import Response
+from rest_framework.test import APIRequestFactory
+from rest_framework.views import APIView
 
-# from rest_framework import serializers, status
-# from rest_framework.response import Response
-# from rest_framework.test import APIRequestFactory
-# from rest_framework.views import APIView
-
-# from mung_manager.common.pagination import LimitOffsetPagination, get_paginated_data
-
-# factory = APIRequestFactory()
-
-
-# class LimitOffsetExampleListApi(APIView):
-#     class Pagination(LimitOffsetPagination):
-#         default_limit = 1
-
-#     class OutputSerializer(serializers.ModelSerializer):
-#         class Meta:
-#             model = User
-#             fields = ("id", "email")
-
-#     def get(self, request):
-#         queryset = User.objects.order_by("id")
-
-#         data = get_paginated_data(
-#             pagination_class=self.Pagination,
-#             serializer_class=self.OutputSerializer,
-#             queryset=queryset,
-#             request=request,
-#             view=self,
-#         )
-
-#         return Response(data=data, status=status.HTTP_200_OK)
+factory = APIRequestFactory()
+pytestmark = pytest.mark.django_db
 
 
-# class TestLimitOffsetPagination:
-#     def test_response_is_paginated_correctly(self):
-#         request = factory.get("/some/path")
-#         view = LimitOffsetExampleListApi.as_view()
-#         response = view(request)
+class LimitOffsetExampleListApi(APIView):
+    class Pagination(LimitOffsetPagination):
+        default_limit = 1
 
-#         assert response.status_code == 200
+    class OutputSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = User
+            fields = ("id", "email")
 
-#         data = response.data
+    def get(self, request):
+        queryset = User.objects.order_by("id")
 
-#         assert data["limit"] == 1
-#         assert data["offset"] == 0
-#         assert data["count"] == 11
-#         assert data["next"] == "http://testserver/some/path?limit=1&offset=1"
-#         assert data["previous"] is None
+        data = get_paginated_data(
+            pagination_class=self.Pagination,
+            serializer_class=self.OutputSerializer,
+            queryset=queryset,
+            request=request,
+            view=self,
+        )
 
-#         results = data["results"]
+        return Response(data=data, status=status.HTTP_200_OK)
 
-#         assert len(results) == 1
 
-#         next_page_request = factory.get("/some/path?limit=1&offset=1")
-#         next_page_response = view(next_page_request)
+class TestLimitOffsetPagination:
+    def test_response_is_paginated_correctly(self, active_guest_user, active_partner_user):
+        request = factory.get("/some/path")
+        view = LimitOffsetExampleListApi.as_view()
+        response = view(request)
 
-#         assert next_page_response.status_code == 200
+        assert response.status_code == 200
 
-#         next_page_data = next_page_response.data
+        data = response.data
 
-#         assert next_page_data["limit"] == 1
-#         assert next_page_data["offset"] == 1
-#         assert next_page_data["count"] == 11
-#         assert next_page_data["next"] == "http://testserver/some/path?limit=1&offset=2"
-#         assert next_page_data["previous"] == "http://testserver/some/path?limit=1"
+        assert data["limit"] == 1
+        assert data["offset"] == 0
+        assert data["count"] == 2
+        assert data["next"] == "http://testserver/some/path?limit=1&offset=1"
+        assert data["previous"] is None
 
-#         next_page_results = next_page_data["results"]
+        results = data["results"]
 
-#         assert len(next_page_results) == 1
+        assert len(results) == 1
+
+        next_page_request = factory.get("/some/path?limit=1&offset=1")
+        next_page_response = view(next_page_request)
+
+        assert next_page_response.status_code == 200
+
+        next_page_data = next_page_response.data
+
+        assert next_page_data["limit"] == 1
+        assert next_page_data["offset"] == 1
+        assert next_page_data["count"] == 2
+        assert next_page_data["next"] is None
+        assert next_page_data["previous"] == "http://testserver/some/path?limit=1"
+
+        next_page_results = next_page_data["results"]
+
+        assert len(next_page_results) == 1

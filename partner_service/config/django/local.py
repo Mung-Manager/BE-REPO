@@ -3,7 +3,7 @@ from config.django.base import *  # noqa
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": env("LOCAL_POSTGRESQL_DATABASE", default="mung_manager"),
         "USER": env("LOCAL_POSTGRESQL_USER", default="postgres"),
         "PASSWORD": env("LOCAL_POSTGRESQL_PASSWORD", default="password"),
@@ -11,3 +11,6 @@ DATABASES = {
         "PORT": env("LOCAL_POSTGRESQL_PORT", default="5432"),
     }
 }
+
+GEOS_LIBRARY_PATH = env.str("GEOS_LIBRARY_PATH")
+GDAL_LIBRARY_PATH = env.str("GDAL_LIBRARY_PATH")

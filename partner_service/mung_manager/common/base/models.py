@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class BaseModel(models.Model):
+class TimeStampedModel(models.Model):
     """
     기본적인 필드와 메서드를 포함하는 추상 기본 모델 클래스입니다.
     이 클래스는 다른 모델 클래스들이 공통으로 상속받을 수 있도록 생성되었습니다.
@@ -30,8 +30,8 @@ class SimpleModel(models.Model):
         description (CharField): 객체의 설명을 나타내는 필드입니다.
     """
 
-    name = models.CharField(max_length=64, verbose_name="이름")
-    description = models.CharField(max_length=128, null=True, verbose_name="설명")
+    name = models.CharField(max_length=32, verbose_name="이름")
+    description = models.CharField(max_length=64, blank=True, verbose_name="설명")
 
     class Meta:
         abstract = True
