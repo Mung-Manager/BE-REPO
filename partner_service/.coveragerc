@@ -1,9 +1,9 @@
 [run]
 omit =
-    mung_manager/common/base/*
-    mung_manager/common/exception/*
-    mung_manager/common/pagination.py
     */migrations/*
     */urls.py
     */models.py
     */__init__.py
+    */abstracts.py
+    */apps.py
+    */base

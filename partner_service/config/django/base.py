@@ -13,9 +13,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-# Application definition
+# ==================================================================== #
+#                     설치된 앱, 사용하는 앱 config                         #
+# ==================================================================== #
 LOCAL_APPS = [
     "mung_manager.common.apps.CommonConfig",
+    "mung_manager.authentication.apps.AuthenticationConfig",
+    "mung_manager.users.apps.UsersConfig",
+    "mung_manager.pet_kindergardens.apps.PetKindergardensConfig",
 ]
 
 THIRD_PARTY_APPS = [
@@ -29,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.gis",
     *THIRD_PARTY_APPS,
     *LOCAL_APPS,
 ]
@@ -42,9 +48,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "config.middleware.APIProcessTimeMiddleware",
 ]
 
 ROOT_URLCONF = "config.root_urls"
+
+APPEND_SLASH = False
 
 TEMPLATES = [
     {
@@ -62,6 +71,7 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = "config.wsgi.application"
 
 ASGI_APPLICATION = "config.asgi.application"
@@ -70,7 +80,7 @@ ASGI_APPLICATION = "config.asgi.application"
 if os.environ.get("GITHUB_WORKFLOW"):
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql",
+            "ENGINE": "django.contrib.gis.db.backends.postgis",
             "NAME": "github_actions",
             "USER": "postgres",
             "PASSWORD": "password",
@@ -97,39 +107,50 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = "users.User"
+
+APP_DOMAIN = env("APP_DOMAIN", default="http://localhost:8000")
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Internationalization
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en-us"  # 언어 - 국가 설정
 
-TIME_ZONE = "Asia/Seoul"
+TIME_ZONE = "Asia/Seoul"  # 시간대 설정
 
-USE_I18N = True
+USE_I18N = True  # 국제화
 
-USE_L10N = True
+USE_L10N = True  # 지역화
 
-USE_TZ = False
+USE_TZ = False  # 장고 시간대 사용 여부
 
-APPEND_SLASH = False
 
-# Static files (CSS, JavaScript, Images)
+# ==================================================================== #
+#                  file system (static) config                         #
+# ==================================================================== #
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATIC_URL = "/partner/static/"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/partner/media/"
 
+# ==================================================================== #
+#                       DRF config                                     #
+# ==================================================================== #
+# https://www.django-rest-framework.org/
+
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ("djangorestframework_camel_case.render.CamelCaseJSONRenderer",),
     "DEFAULT_PARSER_CLASSES": ("djangorestframework_camel_case.parser.CamelCaseJSONParser",),
     "EXCEPTION_HANDLER": "mung_manager.common.exception.exception_handler.default_exception_handler",
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("mung_manager.common.authentication.CustomJWTAuthentication",),
 }
 
-APP_DOMAIN = env("APP_DOMAIN", default="http://localhost:8000")
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
+# ==================================================================== #
+#                       Logging config                                 #
+# ==================================================================== #
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -165,18 +186,20 @@ LOGGING = {
         },
     },
     "loggers": {
-        "django": {
-            "handlers": ["console", "file"],
-            "level": "INFO",
-        },
-        # "django.db.backends": {
-        #     "handlers": ["console"],
-        #     "level": "DEBUG",
+        # "django": {
+        #     "handlers": ["console", "file"],
+        #     "level": "INFO",
         # },
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
     },
 }
 
 from config.settings.cors import *  # noqa
+from config.settings.oauth import *  # noqa
+from config.settings.jwt import *  # noqa
 
 from config.settings.debug_toolbar.settings import *  # noqa
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa
