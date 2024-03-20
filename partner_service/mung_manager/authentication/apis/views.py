@@ -1,11 +1,13 @@
 from datetime import datetime
 
-from django.shortcuts import redirect
 from drf_yasg.utils import swagger_auto_schema
 from mung_manager.authentication.services.auth import AuthService
 from mung_manager.authentication.services.kakao_oauth import KakaoLoginFlowService
 from mung_manager.common.base.serializers import BaseResponseSerializer, BaseSerializer
-from mung_manager.common.exception.exceptions import AuthenticationFailedException
+from mung_manager.common.exception.exceptions import (
+    AuthenticationFailedException,
+    InvalidTokenException,
+)
 from mung_manager.common.response import create_response
 from mung_manager.pet_kindergardens.selectors.pet_kindergardens import (
     PetKindergardenSelector,
@@ -16,7 +18,7 @@ from rest_framework import serializers, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -44,35 +46,18 @@ class UserJWTRefreshView(TokenRefreshView):
 
         try:
             serializer.is_valid(raise_exception=True)
-        except TokenError as e:
-            raise InvalidToken(e.args[0])
+        except TokenError:
+            raise InvalidTokenException("Token is invalid or expired")
 
         token_data = self.OutputSerializer({"access_token": serializer.validated_data["access"]}).data
         return create_response(data=token_data, status_code=status.HTTP_200_OK)
-
-
-class KakaoLoginRedirectView(APIView):
-    @swagger_auto_schema(
-        tags=["인증"],
-        operation_summary="카카오 로그인 리다이렉트",
-    )
-    def get(self, request: Request):
-        """
-        카카오 로그인을 위한 리다이렉트 URL로 이동합니다.
-        url: /partner/api/v1/auth/kakao/redirect
-
-        Returns:
-            redirect: 카카오 로그인 페이지로 리다이렉트
-        """
-        kaka_login_flow = KakaoLoginFlowService()
-        authorization_url = kaka_login_flow.get_authorization_url()
-        return redirect(authorization_url)
 
 
 class KakaoLoginView(APIView):
     class InputSerializer(BaseSerializer):
         code = serializers.CharField(required=False)
         error = serializers.CharField(required=False)
+        redirect_uri = serializers.CharField(required=False)
 
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
@@ -97,6 +82,7 @@ class KakaoLoginView(APIView):
             InputSerializer: 카카오 로그인 콜백 데이터
                 code (str): 카카오 인증 코드
                 error (str): 카카오 에러 코드
+                redirect_uri (str): 카카오 리다이렉트 URI
 
         Returns:
             OutputSerializer: 인증 토큰 정보
@@ -109,6 +95,7 @@ class KakaoLoginView(APIView):
         validated_data = input_serializer.validated_data
         code = validated_data.get("code")
         error = validated_data.get("error")
+        redirect_uri = validated_data.get("redirect_uri")
 
         if error is not None:
             raise AuthenticationFailedException(error)
@@ -116,9 +103,12 @@ class KakaoLoginView(APIView):
         if code is None:
             raise AuthenticationFailedException("Code is not provided")
 
+        if redirect_uri is None:
+            raise AuthenticationFailedException("Redirect URI is not provided")
+
         # 카카오 로그인 플로우
         kakao_login_flow = KakaoLoginFlowService()
-        kakao_token = kakao_login_flow.get_token(code=code)
+        kakao_token = kakao_login_flow.get_token(code=code, redirect_uri=redirect_uri)
         user_info = kakao_login_flow.get_user_info(kakao_token=kakao_token)
 
         # 유저 정보 추출

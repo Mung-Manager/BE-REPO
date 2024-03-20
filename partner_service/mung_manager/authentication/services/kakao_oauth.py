@@ -26,70 +26,29 @@ class KakaoLoginFlowService:
 
     Attributes:
         API_URI (str): API URI입니다.
-        KAKAO_AUTH_URL (str): 카카오 인증 URL입니다.
         KAKAO_ACCESS_TOKEN_OBTAIN_URL (str): 카카오 토큰 얻기 URL입니다.
         KAKAO_USER_INFO_URL (str): 카카오 유저 정보 URL입니다.
     """
 
     API_URI = reverse_lazy("api-auth:kakao-login-callback")
 
-    KAKAO_AUTH_URL = "https://kauth.kakao.com/oauth/authorize"
     KAKAO_ACCESS_TOKEN_OBTAIN_URL = "https://kauth.kakao.com/oauth/token"
     KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me"
 
     def __init__(self):
         self._credentials = kakao_login_get_credentials()
 
-    def _get_redirect_uri(self) -> str:
+    def get_token(self, code: str, redirect_uri: str) -> KakaoAccessToken:
         """
-        이 내부 함수는 redirect_uri를 생성합니다.
-
-        Returns:
-            str: redirect_uri입니다.
-        """
-        domain = settings.BASE_BACKEND_URL
-        api_uri = self.API_URI
-        redirect_uri = f"{domain}{api_uri}"
-        return redirect_uri
-
-    def _generate_client_config(self) -> Dict[str, Any]:
-        """
-        이 내부 함수는 클라이언트 설정을 생성합니다.
-
-        Returns:
-            Dict[str, Any]: 클라이언트 설정입니다.
-        """
-        redirect_uri = self._get_redirect_uri()
-        client_id = self._credentials.client_id
-        return {"redirect_uri": redirect_uri, "client_id": client_id, "response_type": "code"}
-
-    def get_authorization_url(self) -> str:
-        """
-        이 함수는 카카오 인증 URL을 반환합니다.
-
-        Returns:
-            str: 카카오 인증 URL입니다.
-        """
-        client_config = self._generate_client_config()
-        response = requests.get(self.KAKAO_AUTH_URL, params=client_config)
-
-        # 카카오 인증을 실패했을 때 예외처리
-        if response.status_code != 200:
-            raise AuthenticationFailedException("Failed to get authorization url from Kakao.")
-
-        return response.url
-
-    def get_token(self, code: str) -> KakaoAccessToken:
-        """
-        이 함수는 클라이언트로부터 받은 code를 이용하여 카카오 토큰 서버로부터 토큰을 얻습니다.
+        이 함수는 클라이언트로부터 받은 code와 redirect_uri 이용하여 카카오 토큰 서버로부터 토큰을 얻습니다.
 
         Args:
             code (str): 클라이언트로부터 받은 code입니다.
+            redirect_uri (str): 클라이언트로부터 받은 redirect_uri.
 
         Returns:
             KakaoAccessToken: 카카오 토큰입니다.
         """
-        redirect_uri = self._get_redirect_uri()
         data = {
             "grant_type": "authorization_code",
             "client_id": self._credentials.client_id,
