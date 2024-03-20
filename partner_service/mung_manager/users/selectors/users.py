@@ -23,3 +23,16 @@ class UserSelector(AbstractUserSelector):
             return User.objects.filter(social_id=social_id).get()
         except User.DoesNotExist:
             return None
+
+    def check_is_exists_user_by_email_excluding_self(self, email: str, user) -> bool:
+        """
+        이 함수는 이메일로 자신을 제외한 유저를 조회합니다.
+
+        Args:
+            email (str): 이메일입니다.
+            user (User): 유저 객체입니다.
+
+        Returns:
+            bool: 유저 존재 여부입니다.
+        """
+        return User.objects.filter(email=email).exclude(id=user.id).exists()
