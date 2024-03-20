@@ -12,32 +12,15 @@ class TestKakaoLoginFlowService:
 
     - Test List:
         Success:
-            - get_authorization_url_success
             - get_token_success
             - get_user_info_success
         Fail:
-            - get_authorization_url_fail
             - get_token_fail
             - get_user_info_fail
     """
 
     def setup_method(self):
         self.service = KakaoLoginFlowService()
-
-    def test_get_authorization_url_success(self, mocker):
-        """카카오 로그인 인증 URL 성공 테스트
-
-        Args:
-            mocker : mocker 객체입니다.
-        """
-        mock_response = mocker.Mock()
-        mock_response.status_code = 200
-        mock_response.url = "https://kauth.kakao.com/oauth/authorize"
-
-        mocker.patch("mung_manager.authentication.services.kakao_oauth.requests.get", return_value=mock_response)
-
-        authorization_url = self.service.get_authorization_url()
-        assert authorization_url == "https://kauth.kakao.com/oauth/authorize"
 
     def test_get_token_success(self, mocker):
         """카카오 로그인 토큰 발급 성공 테스트
@@ -51,7 +34,7 @@ class TestKakaoLoginFlowService:
 
         mocker.patch("mung_manager.authentication.services.kakao_oauth.requests.post", return_value=mock_response)
 
-        token = self.service.get_token("test_code")
+        token = self.service.get_token(code="test_code", redirect_uri="http://localhost:8000")
         assert token.access_token == "test_access_token"
 
     def test_get_user_info_success(self, mocker):
@@ -87,24 +70,6 @@ class TestKakaoLoginFlowService:
         assert user_info["kakao_account"]["birthday"] == "0101"
         assert user_info["kakao_account"]["gender"] == "male"
 
-    def test_get_authorization_url_fail(self, mocker):
-        """카카오 로그인 인증 URL 실패 테스트
-
-        Args:
-            mocker : mocker 객체입니다.
-        """
-        mock_response = mocker.Mock()
-        mock_response.status_code = 401
-        mock_response.url = "https://kauth.kakao.com/oauth/authorize"
-
-        mocker.patch("mung_manager.authentication.services.kakao_oauth.requests.get", return_value=mock_response)
-
-        with pytest.raises(AuthenticationFailedException) as e:
-            self.service.get_authorization_url()
-
-        assert e.value.detail == "Failed to get authorization url from Kakao."
-        assert e.value.status_code == 401
-
     def test_get_token_fail(self, mocker):
         """카카오 로그인 토큰 발급 실패 테스트
 
@@ -118,7 +83,7 @@ class TestKakaoLoginFlowService:
         mocker.patch("mung_manager.authentication.services.kakao_oauth.requests.post", return_value=mock_response)
 
         with pytest.raises(AuthenticationFailedException) as e:
-            self.service.get_token("test_code")
+            self.service.get_token(code="test_code", redirect_uri="http://localhost:8000")
 
         assert e.value.detail == "Failed to get access token from Kakao."
         assert e.value.status_code == 401

@@ -58,3 +58,4 @@ class TestUserJWTRefreshPost:
 
         assert response.status_code == 401
         assert response.data["code"] == "token_not_valid"
+        assert response.data["message"] == "Token is invalid or expired"
