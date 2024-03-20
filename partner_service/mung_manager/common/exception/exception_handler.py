@@ -85,7 +85,6 @@ def handle_django_validation_exception(exc: ValidationError, context: dict) -> R
     Returns:
         Response: 예외 처리 결과로 생성된 Response 객체를 반환합니다.
     """
-    print("__________________________")
     status_code = getattr(ValidationException, "status_code")
     code = getattr(ValidationException, "default_code")
 
