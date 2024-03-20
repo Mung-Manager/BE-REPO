@@ -14,6 +14,7 @@ class TestKakaoLoginAPI:
             - @TODO: kakao_login_api_success_partner_enrolled
         Fail:
             - kakao_login_api_fail_missing_code
+            - kakao_login_api_fail_missing_redirect_uri
             - kakao_login_api_fail_exist_error
     """
 
@@ -47,9 +48,7 @@ class TestKakaoLoginAPI:
 
         response = api_client.get(
             path=self.url,
-            data={
-                "code": "code",
-            },
+            data={"code": "code", "redirect_uri": "http://localhost:8000"},
         )
 
         assert response.status_code == 200
@@ -68,6 +67,23 @@ class TestKakaoLoginAPI:
         assert response.status_code == 401
         assert response.data["code"] == "authentication_failed"
         assert response.data["message"] == "Code is not provided"
+
+    def test_kakao_login_api_fail_missing_redirect_uri(self, api_client):
+        """카카오 로그인 실패 테스트 (리다이렉트 URI가 누락된 경우)
+
+        Args:
+            api_client : API Client
+        """
+        response = api_client.get(
+            path=self.url,
+            data={
+                "code": "code",
+            },
+        )
+
+        assert response.status_code == 401
+        assert response.data["code"] == "authentication_failed"
+        assert response.data["message"] == "Redirect URI is not provided"
 
     def test_kakao_login_api_fail_exist_error(self, api_client):
         """카카오 로그인 실패 테스트 (에러가 발생한 경우)

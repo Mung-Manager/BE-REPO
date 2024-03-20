@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from django.db import transaction
+from mung_manager.common.exception.exceptions import ValidationException
 from mung_manager.common.services import update_model
 from mung_manager.users.models import User
 from mung_manager.users.selectors.users import UserSelector
@@ -68,6 +69,10 @@ class UserService:
         Returns:
             User: 유저 객체입니다.
         """
+        # 유저 이메일 중복 확인
+        if self.user_selector.check_is_exists_user_by_email_excluding_self(email=data.get("email"), user=user):
+            raise ValidationException("Email already exists.")
+
         # 유저 정보 수정
         fields = ["name", "email"]
         user, has_updated = update_model(instance=user, fields=fields, data=data)
