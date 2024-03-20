@@ -21,6 +21,7 @@ LOCAL_APPS = [
     "mung_manager.authentication.apps.AuthenticationConfig",
     "mung_manager.users.apps.UsersConfig",
     "mung_manager.pet_kindergardens.apps.PetKindergardensConfig",
+    "mung_manager.files.apps.FilesConfig",
 ]
 
 THIRD_PARTY_APPS = [
@@ -186,20 +187,21 @@ LOGGING = {
         },
     },
     "loggers": {
-        # "django": {
-        #     "handlers": ["console", "file"],
-        #     "level": "INFO",
-        # },
-        "django.db.backends": {
-            "handlers": ["console"],
-            "level": "DEBUG",
+        "django": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
         },
+        # "django.db.backends": {
+        #     "handlers": ["console"],
+        #     "level": "DEBUG",
+        # },
     },
 }
 
 from config.settings.cors import *  # noqa
 from config.settings.oauth import *  # noqa
 from config.settings.jwt import *  # noqa
+from config.settings.files_and_storages import *  # noqa
 
 from config.settings.debug_toolbar.settings import *  # noqa
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa
