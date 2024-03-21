@@ -15,9 +15,9 @@ class RawPetKindergardenSelector(AbstractRawPetKindergardenSelector):
         이 함수는 이름으로 로우 반려동물 유치원 쿼리셋을 조회합니다.
 
         Args:
-            name: 반려동물 유치원 이름
+            name: 반려동물 유치원 이름입니다.
 
         Returns:
-            QuerySet[RawPetKindergarden]: 로우 반려동물 유치원 쿼리셋
+            QuerySet[RawPetKindergarden]: 로우 반려동물 유치원 쿼리셋입니다.
         """
         return RawPetKindergarden.objects.filter(name__icontains=name)

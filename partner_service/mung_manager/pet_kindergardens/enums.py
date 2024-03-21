@@ -26,3 +26,13 @@ class ReservationCancleOption(Enum):
     BEFORE_THREE_DAY = "3일 전 취소 가능"
     BEFORE_FOUR_DAY = "4일 전 취소 가능"
     BEFORE_FIVE_DAY = "5일 전 취소 가능"
+
+
+class TicketType(Enum):
+    """
+    티켓 타입
+    """
+
+    TIME = "시간"
+    ALL_DAY = "종일"
+    HOTEL = "호텔"

@@ -2,6 +2,11 @@ from django.contrib.gis.db.models import PointField
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from mung_manager.common.base.models import TimeStampedModel
+from mung_manager.pet_kindergardens.enums import (
+    ReservationAvailableOption,
+    ReservationCancleOption,
+    TicketType,
+)
 from mung_manager.users.models import User
 
 
@@ -20,8 +25,12 @@ class PetKindergarden(TimeStampedModel):
     latitude = models.DecimalField(max_digits=13, decimal_places=10, verbose_name="위도")
     longitude = models.DecimalField(max_digits=13, decimal_places=10, verbose_name="경도")
     point = PointField(verbose_name="위치 좌표")
-    reservation_available_option = models.CharField(max_length=64, verbose_name="예약 가능 옵션")
-    reservation_cancle_option = models.CharField(max_length=64, verbose_name="예약 취소 옵션")
+    reservation_available_option = models.CharField(
+        max_length=64, verbose_name="예약 가능 옵션", choices=[(o.value, o.name) for o in ReservationAvailableOption]
+    )
+    reservation_cancle_option = models.CharField(
+        max_length=64, verbose_name="예약 취소 옵션", choices=[(o.value, o.name) for o in ReservationCancleOption]
+    )
     daily_pet_limit = models.SmallIntegerField(verbose_name="일일 펫 제한")
     user = models.ForeignKey(
         User,
@@ -63,3 +72,27 @@ class RawPetKindergarden(models.Model):
         db_table = "raw_pet_kindergarden"
         verbose_name = "raw pet kindergarden"
         verbose_name_plural = "raw pet kindergarden"
+
+
+class Ticket(TimeStampedModel):
+    id = models.AutoField(auto_created=True, primary_key=True, db_column="ticket_id", serialize=False, verbose_name="티켓 아이디")
+    usage_time = models.IntegerField(verbose_name="사용 시간")
+    usage_count = models.IntegerField(verbose_name="사용 횟수")
+    usage_period_in_days = models.IntegerField(verbose_name="사용 기간(일)")
+    price = models.IntegerField(verbose_name="금액")
+    ticket_type = models.CharField(max_length=32, verbose_name="티켓 타입", choices=[(t.value, t.name) for t in TicketType])
+    deleted_at = models.DateTimeField(verbose_name="삭제 일시", blank=True, null=True)
+    is_deleted = models.BooleanField(verbose_name="삭제 여부", default=False)
+    pet_kindergarden = models.ForeignKey(
+        PetKindergarden,
+        on_delete=models.CASCADE,
+        related_name="tickets",
+    )
+
+    def __str__(self):
+        return f"[{self.id}]: {self.pet_kindergarden.name} - {self.ticket_type}"
+
+    class Meta:
+        db_table = "ticket"
+        verbose_name = "ticket"
+        verbose_name_plural = "tickets"
