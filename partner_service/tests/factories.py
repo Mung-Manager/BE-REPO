@@ -4,13 +4,18 @@ from datetime import datetime
 import factory
 import pytz
 from django.contrib.auth.models import Group
-from factory.fuzzy import FuzzyChoice, FuzzyDate, FuzzyDateTime
+from factory.fuzzy import FuzzyChoice, FuzzyDate, FuzzyDateTime, FuzzyInteger
 from faker import Faker
 from mung_manager.pet_kindergardens.enums import (
     ReservationAvailableOption,
     ReservationCancleOption,
+    TicketType,
 )
-from mung_manager.pet_kindergardens.models import PetKindergarden, RawPetKindergarden
+from mung_manager.pet_kindergardens.models import (
+    PetKindergarden,
+    RawPetKindergarden,
+    Ticket,
+)
 from mung_manager.users.models import User, UserSocialProvider
 
 faker = Faker("ko_KR")
@@ -120,13 +125,6 @@ class PetKindergardenFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = PetKindergarden
 
-    # @factory.post_generation
-    # def user(self, create, extracted, **kwargs):
-    #     if extracted:
-    #         self.user = extracted
-    #     else:
-    #         self.user = factory.SubFactory(UserFactory)
-
 
 class RawPetKindergardenFactory(factory.django.DjangoModelFactory):
     thum_url = factory.LazyAttribute(lambda _: faker.unique.image_url())
@@ -143,3 +141,29 @@ class RawPetKindergardenFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = RawPetKindergarden
+
+
+class TicketFactory(factory.django.DjangoModelFactory):
+    usage_time = FuzzyInteger(1, 24)
+    usage_count = FuzzyInteger(1, 100)
+    usage_period_in_days = FuzzyInteger(1, 30)
+    price = FuzzyInteger(1000, 100000)
+    ticket_type = FuzzyChoice(choices=[e.value for e in TicketType])
+    pet_kindergarden = factory.SubFactory(PetKindergardenFactory)
+
+    class Meta:
+        model = Ticket
+
+    @factory.post_generation
+    def is_deleted(self, create, extracted, **kwargs):
+        if isinstance(extracted, bool):
+            self.is_deleted = extracted
+        else:
+            self.is_deleted = False
+
+    @factory.post_generation
+    def deleted_at(self, create, extracted, **kwargs):
+        if isinstance(extracted, datetime):
+            self.deleted_at = extracted
+        else:
+            self.deleted_at = None
