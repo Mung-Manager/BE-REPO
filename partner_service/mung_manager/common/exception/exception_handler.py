@@ -44,9 +44,10 @@ def default_exception_handler(exc: Exception, context: dict) -> Response:
         response = handle_django_validation_exception(exc=exc, context=context)
 
     # 익셉션 핸들러에서 처리가 완료되었다면 해당 Response를 반환
-    if response:
+    if "response" in locals():
         return response
 
+    # @TODO: 슬랙 알림
     return handle_api_exception(exc=UnknownServerException(), context=context)
 
 
@@ -91,6 +92,6 @@ def handle_django_validation_exception(exc: ValidationError, context: dict) -> R
     if hasattr(exc, "message_dict"):
         message = getattr(exc, "message_dict")
     else:
-        message = getattr(ValidationException, "default_detail")
+        message = exc
 
     return create_response(code=code, message=message, status_code=status_code)

@@ -1,11 +1,15 @@
+from mung_manager.pet_kindergardens.enums import (
+    ReservationAvailableOption,
+    ReservationCancleOption,
+)
 from mung_manager.pet_kindergardens.services.pet_kindergardens import (
     PetKindergardenService,
 )
 
 
-class TestPetKindergardenService:
+class TestCreatePetKindergardenService:
     """
-    PetKindergardenService의 테스트 클래스
+    PetKindergardenService의 create_pet_kindergarden 테스트 클래스
 
     - Test List:
         Success:
@@ -33,8 +37,8 @@ class TestPetKindergardenService:
         guide_message = "test"
         latitude = 1.0
         longitude = 1.0
-        reservation_available_option = "test"
-        reservation_cancle_option = "test"
+        reservation_available_option = ReservationAvailableOption.TODAY.value
+        reservation_cancle_option = ReservationCancleOption.TODAY.value
         daily_pet_limit = 1
 
         pet_kindergarden = self.pet_kindergarden_service.create_pet_kindergarden(

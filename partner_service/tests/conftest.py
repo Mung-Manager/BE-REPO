@@ -7,6 +7,7 @@ from tests.factories import (
     GroupFactory,
     PetKindergardenFactory,
     RawPetKindergardenFactory,
+    TicketFactory,
     UserFactory,
     UserSocialProviderFactory,
 )
@@ -76,3 +77,8 @@ def pet_kindergarden(db, active_partner_user):
 @pytest.fixture
 def raw_pet_kindergarden(db):
     return RawPetKindergardenFactory()
+
+
+@pytest.fixture
+def ticket(db, pet_kindergarden):
+    return TicketFactory(pet_kindergarden=pet_kindergarden)
