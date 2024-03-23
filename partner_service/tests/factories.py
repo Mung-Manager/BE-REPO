@@ -145,9 +145,9 @@ class RawPetKindergardenFactory(factory.django.DjangoModelFactory):
 
 
 class TicketFactory(factory.django.DjangoModelFactory):
-    usage_time = FuzzyInteger(1, 24)
+    usage_time_count = FuzzyInteger(1, 24)
     usage_count = FuzzyInteger(1, 100)
-    usage_period_in_days = FuzzyInteger(1, 30)
+    usage_period_in_days_count = FuzzyInteger(1, 30)
     price = FuzzyInteger(1000, 100000)
     ticket_type = FuzzyChoice(choices=[e.value for e in TicketType])
     pet_kindergarden = factory.SubFactory(PetKindergardenFactory)

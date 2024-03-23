@@ -77,9 +77,9 @@ class RawPetKindergarden(models.Model):
 
 class Ticket(TimeStampedModel):
     id = models.AutoField(auto_created=True, primary_key=True, db_column="ticket_id", serialize=False, verbose_name="티켓 아이디")
-    usage_time = models.IntegerField(verbose_name="사용 시간")
+    usage_time_count = models.IntegerField(verbose_name="사용 시간 횟수")
     usage_count = models.IntegerField(verbose_name="사용 횟수")
-    usage_period_in_days = models.IntegerField(verbose_name="사용 기간(일)")
+    usage_period_in_days_count = models.IntegerField(verbose_name="사용 기간(일) 횟수")
     price = models.IntegerField(verbose_name="금액")
     ticket_type = models.CharField(max_length=32, verbose_name="티켓 타입", choices=[(t.value, t.name) for t in TicketType])
     deleted_at = models.DateTimeField(verbose_name="삭제 일시", blank=True, null=True)

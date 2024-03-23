@@ -18,9 +18,9 @@ from rest_framework.views import APIView
 class PetKindergardenTicketListView(APIAuthMixin, APIView):
     class OutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
-        usage_time = serializers.IntegerField()
+        usage_time_count = serializers.IntegerField()
         usage_count = serializers.IntegerField()
-        usage_period_in_days = serializers.IntegerField()
+        usage_period_in_days_count = serializers.IntegerField()
         price = serializers.IntegerField()
         ticket_type = serializers.CharField()
         is_deleted = serializers.BooleanField()
@@ -43,9 +43,9 @@ class PetKindergardenTicketListView(APIAuthMixin, APIView):
         Returns:
             OutSerializer: 반려동물 유치원 티켓 정보
                 id (int): 티켓 아이디
-                usage_time (int): 사용 시간
+                usage_time_count (int): 사용 시간 횟수
                 usage_count (int): 사용 횟수
-                usage_period_in_days (int): 사용 기간(일)
+                usage_period_in_days_count (int): 사용 기간(일) 횟수
                 price (int): 금액
                 ticket_type (str): 티켓 타입
                 is_deleted (bool): 삭제 여부
@@ -68,9 +68,9 @@ class PetKindergardenTicketListView(APIAuthMixin, APIView):
         return create_response(data=tickets_data, status_code=status.HTTP_200_OK)
 
     class InputSerializer(BaseSerializer):
-        usage_time = serializers.IntegerField(required=False, min_value=0, default=0)
+        usage_time_count = serializers.IntegerField(required=False, min_value=0, default=0)
         usage_count = serializers.IntegerField(required=True, min_value=1)
-        usage_period_in_days = serializers.IntegerField(required=True, min_value=1)
+        usage_period_in_days_count = serializers.IntegerField(required=True, min_value=1)
         price = serializers.IntegerField(required=True, min_value=0)
         ticket_type = serializers.ChoiceField(choices=[type.value for type in TicketType])
 
@@ -90,18 +90,18 @@ class PetKindergardenTicketListView(APIAuthMixin, APIView):
         Args:
             pet_kindergarden_id (int): 반려동물 유치원 아이디
             InputSerializer: 반려동물 유치원 티켓 생성 데이터
-                usage_time (int): 사용 시간
+                usage_time_count (int): 사용 시간 횟수
                 usage_count (int): 사용 횟수
-                usage_period_in_days (int): 사용 기간(일)
+                usage_period_in_days_count (int): 사용 기간(일) 횟수
                 price (int): 금액
                 ticket_type (str): 티켓 타입
 
         Returns:
             OutSerializer: 반려동물 유치원 티켓 정보
                 id (int): 티켓 아이디
-                usage_time (int): 사용 시간
+                usage_time_count (int): 사용 시간 횟수
                 usage_count (int): 사용 횟수
-                usage_period_in_days (int): 사용 기간(일)
+                usage_period_in_days_count (int): 사용 기간(일)
                 price (int): 금액
                 ticket_type (str): 티켓 타입
         """

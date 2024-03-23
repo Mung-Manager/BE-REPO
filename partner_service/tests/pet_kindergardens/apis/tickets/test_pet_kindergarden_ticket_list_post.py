@@ -31,9 +31,9 @@ class TestPetKindergardenTicketListPost(IsAuthenticateTestCase):
 
         pet_kindergarden_ticket_data = {
             "ticket_type": TicketType.TIME.value,
-            "usage_time": 10,
+            "usage_time_count": 10,
             "usage_count": 10,
-            "usage_period_in_days": 10,
+            "usage_period_in_days_count": 10,
             "price": 10000,
         }
 
@@ -44,10 +44,10 @@ class TestPetKindergardenTicketListPost(IsAuthenticateTestCase):
         )
         assert response.status_code == 201
         assert response.data["data"]["ticket_type"] == TicketType.TIME.value
-        assert response.data["data"]["usage_time"] == 10
-        assert response.data["data"]["usage_count"] == 10
-        assert response.data["data"]["usage_period_in_days"] == 10
-        assert response.data["data"]["price"] == 10000
+        assert response.data["data"]["usage_time_count"] == pet_kindergarden_ticket_data["usage_time_count"]
+        assert response.data["data"]["usage_count"] == pet_kindergarden_ticket_data["usage_count"]
+        assert response.data["data"]["usage_period_in_days_count"] == pet_kindergarden_ticket_data["usage_period_in_days_count"]
+        assert response.data["data"]["price"] == pet_kindergarden_ticket_data["price"]
         assert not response.data["data"]["is_deleted"]
 
     def test_pet_kindergarden_ticket_list_post_fail_not_authenticated(self, pet_kindergarden):
@@ -93,9 +93,9 @@ class TestPetKindergardenTicketListPost(IsAuthenticateTestCase):
 
         pet_kindergarden_ticket_data = {
             "ticket_type": TicketType.TIME.value,
-            "usage_time": 10,
+            "usage_time_count": 10,
             "usage_count": 10,
-            "usage_period_in_days": 10,
+            "usage_period_in_days_count": 10,
             "price": 10000,
         }
 
@@ -119,9 +119,9 @@ class TestPetKindergardenTicketListPost(IsAuthenticateTestCase):
 
         pet_kindergarden_ticket_data = {
             "ticket_type": "invalid_choice",
-            "usage_time": 10,
+            "usage_time_count": 10,
             "usage_count": 10,
-            "usage_period_in_days": 10,
+            "usage_period_in_days_count": 10,
             "price": 10000,
         }
 

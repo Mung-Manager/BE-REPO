@@ -25,9 +25,9 @@ class TestCreateTicket:
         """
         ticket_data = {
             "pet_kindergarden_id": pet_kindergarden.id,
-            "usage_time": 10,
+            "usage_time_count": 10,
             "usage_count": 10,
-            "usage_period_in_days": 10,
+            "usage_period_in_days_count": 10,
             "ticket_type": TicketType.TIME.value,
             "price": 100000,
         }
@@ -35,14 +35,14 @@ class TestCreateTicket:
             pet_kindergarden_id=ticket_data["pet_kindergarden_id"],
             ticket_type=ticket_data["ticket_type"],
             price=ticket_data["price"],
-            usage_time=ticket_data["usage_time"],
-            usage_period_in_days=ticket_data["usage_period_in_days"],
+            usage_time_count=ticket_data["usage_time_count"],
+            usage_period_in_days_count=ticket_data["usage_period_in_days_count"],
             usage_count=ticket_data["usage_count"],
         )
 
         assert ticket.pet_kindergarden_id == ticket_data["pet_kindergarden_id"]
-        assert ticket.usage_time == ticket_data["usage_time"]
+        assert ticket.usage_time_count == ticket_data["usage_time_count"]
         assert ticket.usage_count == ticket_data["usage_count"]
-        assert ticket.usage_period_in_days == ticket_data["usage_period_in_days"]
+        assert ticket.usage_period_in_days_count == ticket_data["usage_period_in_days_count"]
         assert ticket.price == ticket_data["price"]
         assert ticket.ticket_type == ticket_data["ticket_type"]

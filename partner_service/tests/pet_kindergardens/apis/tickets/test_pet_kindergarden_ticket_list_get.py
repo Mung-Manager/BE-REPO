@@ -15,6 +15,7 @@ class TestPetKindergardenTicketListGet(IsAuthenticateTestCase):
         Fail:
             - pet_kindergarden_ticket_list_get_fail_not_authenticated
             - pet_kindergarden_ticket_list_get_fail_permission_denied
+            - pet_kindergarden_ticket_list_get_fail_does_not_exist
     """
 
     def test_pet_kindergarden_ticket_list_get_success(self, ticket):
@@ -32,9 +33,9 @@ class TestPetKindergardenTicketListGet(IsAuthenticateTestCase):
         assert response.status_code == 200
         assert response.data["data"][0]["id"] == ticket.id
         assert response.data["data"][0]["ticket_type"] == ticket.ticket_type
-        assert response.data["data"][0]["usage_time"] == ticket.usage_time
+        assert response.data["data"][0]["usage_time_count"] == ticket.usage_time_count
         assert response.data["data"][0]["usage_count"] == ticket.usage_count
-        assert response.data["data"][0]["usage_period_in_days"] == ticket.usage_period_in_days
+        assert response.data["data"][0]["usage_period_in_days_count"] == ticket.usage_period_in_days_count
         assert response.data["data"][0]["price"] == ticket.price
         assert response.data["data"][0]["is_deleted"] == ticket.is_deleted
 

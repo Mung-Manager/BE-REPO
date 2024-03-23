@@ -73,9 +73,9 @@ class Migration(migrations.Migration):
             name='Ticket',
             fields=[
                 ('id', models.AutoField(auto_created=True, db_column='ticket_id', primary_key=True, serialize=False, verbose_name='티켓 아이디')),
-                ('usage_time', models.IntegerField(verbose_name='사용 시간')),
+                ('usage_time_count', models.IntegerField(verbose_name='사용 시간 횟수')),
                 ('usage_count', models.IntegerField(verbose_name='사용 횟수')),
-                ('usage_period_in_days', models.IntegerField(verbose_name='사용 기간(일)')),
+                ('usage_period_in_days_count', models.IntegerField(verbose_name='사용 기간(일) 횟수')),
                 ('price', models.IntegerField(verbose_name='금액')),
                 ('ticket_type', models.CharField(choices=[('시간', 'TIME'), ('종일', 'ALL_DAY'), ('호텔', 'HOTEL')], max_length=32, verbose_name='티켓 타입')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='생성 일시')),

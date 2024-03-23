@@ -22,9 +22,9 @@ class TicketService:
     def create_ticket(
         self,
         pet_kindergarden_id: int,
-        usage_time: int,
+        usage_time_count: int,
         usage_count: int,
-        usage_period_in_days: int,
+        usage_period_in_days_count: int,
         price: int,
         ticket_type: str,
     ) -> Ticket:
@@ -33,9 +33,9 @@ class TicketService:
 
         Args:
             pet_kindergarden_id: 반려동물 유치원 아이디입니다.
-            usage_time: 사용시간입니다.
+            usage_time_count: 사용시간 횟수입니다.
             usage_count: 사용횟수입니다.
-            usage_period_in_days: 사용기간입니다.
+            usage_period_in_days_count: 사용기간 횟수입니다.
             price: 가격입니다.
             ticket_type: 티켓 타입입니다.
 
@@ -44,9 +44,9 @@ class TicketService:
         """
         ticket = Ticket(
             pet_kindergarden_id=pet_kindergarden_id,
-            usage_time=usage_time,
+            usage_time_count=usage_time_count,
             usage_count=usage_count,
-            usage_period_in_days=usage_period_in_days,
+            usage_period_in_days_count=usage_period_in_days_count,
             price=price,
             ticket_type=ticket_type,
             deleted_at=None,
