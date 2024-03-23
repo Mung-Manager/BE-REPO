@@ -28,6 +28,7 @@ class Migration(migrations.Migration):
                 ('business_hours', models.CharField(max_length=64, verbose_name='영업 시간')),
                 ('road_address', models.CharField(max_length=128, verbose_name='도로명 주소')),
                 ('abbr_address', models.CharField(max_length=128, verbose_name='지번 주소')),
+                ('detail_address', models.CharField(max_length=128, verbose_name='상세 주소')),
                 ('short_address', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=128), size=10, verbose_name='간단 주소')),
                 ('guide_message', models.TextField(blank=True, verbose_name='안내 메시지')),
                 ('latitude', models.DecimalField(decimal_places=10, max_digits=13, verbose_name='위도')),

@@ -25,6 +25,7 @@ class PetKindergardenService:
         business_hours: str,
         road_address: str,
         abbr_address: str,
+        detail_address: str,
         short_address: list[str],
         guide_message: str,
         latitude: float,
@@ -46,6 +47,7 @@ class PetKindergardenService:
             business_hours (str): 영업시간입니다.
             road_address (str): 도로명 주소입니다.
             abbr_address (str): 간략 주소입니다.
+            detail_address (str): 상세 주소입니다.
             short_address (list[str]): 짧은 주소입니다.
             guide_message (str): 가이드 메시지입니다.
             latitude (float): 위도입니다.
@@ -67,6 +69,7 @@ class PetKindergardenService:
             business_hours=business_hours,
             road_address=road_address,
             abbr_address=abbr_address,
+            detail_address=detail_address,
             short_address=short_address,
             guide_message=guide_message,
             latitude=latitude,

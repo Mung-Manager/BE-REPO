@@ -44,6 +44,7 @@ class PetKindergardenListView(APIAuthMixin, APIView):
         business_hours = serializers.CharField(required=True, max_length=16)
         road_address = serializers.CharField(required=True, max_length=128)
         abbr_address = serializers.CharField(required=True, max_length=128)
+        detail_address = serializers.CharField(required=True, max_length=128)
         short_address = serializers.ListField(required=True, child=serializers.CharField(max_length=128), max_length=10)
         guide_message = serializers.CharField(required=False, allow_blank=True)
         latitude = serializers.FloatField(required=True, min_value=-90, max_value=90)
@@ -64,6 +65,7 @@ class PetKindergardenListView(APIAuthMixin, APIView):
         business_hours = serializers.CharField()
         road_address = serializers.CharField()
         abbr_address = serializers.CharField()
+        detail_address = serializers.CharField()
         short_address = serializers.ListField(child=serializers.CharField())
         guide_message = serializers.CharField()
         latitude = serializers.FloatField()
@@ -95,6 +97,7 @@ class PetKindergardenListView(APIAuthMixin, APIView):
                 business_hours (str): 영업 시간
                 road_address (str): 도로명 주소
                 abbr_address (str): 지번 주소
+                detail_address (str): 상세 주소
                 short_address (List[str]): 간단 주소
                 guide_message (str): 안내 메시지
                 latitude (float): 위도
@@ -113,6 +116,7 @@ class PetKindergardenListView(APIAuthMixin, APIView):
                 business_hours (str): 영업 시간
                 road_address (str): 도로명 주소
                 abbr_address (str): 지번 주소
+                detail_address (str): 상세 주소
                 short_address (List[str]): 간단 주소
                 guide_message (str): 안내 메시지
                 latitude (float): 위도
