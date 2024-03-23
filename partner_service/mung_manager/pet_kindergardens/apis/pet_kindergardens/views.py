@@ -44,7 +44,7 @@ class PetKindergardenListView(APIAuthMixin, APIView):
         business_hours = serializers.CharField(required=True, max_length=16)
         road_address = serializers.CharField(required=True, max_length=128)
         abbr_address = serializers.CharField(required=True, max_length=128)
-        detail_address = serializers.CharField(required=True, max_length=128)
+        detail_address = serializers.CharField(required=True, max_length=128, allow_blank=True)
         short_address = serializers.ListField(required=True, child=serializers.CharField(max_length=128), max_length=10)
         guide_message = serializers.CharField(required=False, allow_blank=True)
         latitude = serializers.FloatField(required=True, min_value=-90, max_value=90)
