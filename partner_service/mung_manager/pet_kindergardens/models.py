@@ -20,6 +20,7 @@ class PetKindergarden(TimeStampedModel):
     business_hours = models.CharField(max_length=64, verbose_name="영업 시간")
     road_address = models.CharField(max_length=128, verbose_name="도로명 주소")
     abbr_address = models.CharField(max_length=128, verbose_name="지번 주소")
+    detail_address = models.CharField(max_length=128, verbose_name="상세 주소", blank=True)
     short_address = ArrayField(models.CharField(max_length=128), verbose_name="간단 주소", size=10)
     guide_message = models.TextField(verbose_name="안내 메시지", blank=True)
     latitude = models.DecimalField(max_digits=13, decimal_places=10, verbose_name="위도")

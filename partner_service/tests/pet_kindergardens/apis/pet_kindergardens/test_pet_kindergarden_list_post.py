@@ -44,6 +44,7 @@ class TestPetKindergardenListPost(IsAuthenticateTestCase):
             "business_hours": "09:00 ~ 18:00",
             "abbr_address": "서울특별시 강남구",
             "road_address": "서울특별시 강남구",
+            "detail_address": "서울특별시 강남구",
             "short_address": ["서울특별시 강남구"],
             "guide_message": "test",
             "latitude": 90,
@@ -68,6 +69,7 @@ class TestPetKindergardenListPost(IsAuthenticateTestCase):
         assert response.data["data"]["business_hours"] == pet_kindergarden_data["business_hours"]
         assert response.data["data"]["abbr_address"] == pet_kindergarden_data["abbr_address"]
         assert response.data["data"]["road_address"] == pet_kindergarden_data["road_address"]
+        assert response.data["data"]["detail_address"] == pet_kindergarden_data["detail_address"]
         assert response.data["data"]["latitude"] == pet_kindergarden_data["latitude"]
         assert response.data["data"]["longitude"] == pet_kindergarden_data["longitude"]
         assert response.data["data"]["reservation_available_option"] == pet_kindergarden_data["reservation_available_option"]
@@ -114,6 +116,7 @@ class TestPetKindergardenListPost(IsAuthenticateTestCase):
             "business_hours": "09:00 ~ 18:00",
             "abbr_address": "서울특별시 강남구",
             "road_address": "서울특별시 강남구",
+            "detail_address": "서울특별시 강남구",
             "short_address": ["서울특별시 강남구"],
             "guide_message": "test",
             "latitude": 90,
@@ -151,6 +154,7 @@ class TestPetKindergardenListPost(IsAuthenticateTestCase):
             "business_hours": "09:00 ~ 18:00",
             "abbr_address": "서울특별시 강남구",
             "road_address": "서울특별시 강남구",
+            "detail_address": "서울특별시 강남구",
             "short_address": ["서울특별시 강남구"],
             "guide_message": "test",
             "latitude": 90,

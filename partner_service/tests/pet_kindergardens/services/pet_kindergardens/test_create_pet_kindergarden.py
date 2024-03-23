@@ -33,6 +33,7 @@ class TestCreatePetKindergardenService:
         business_hours = "test"
         road_address = "test"
         abbr_address = "test"
+        detail_address = "test"
         short_address = ["test"]
         guide_message = "test"
         latitude = 1.0
@@ -50,6 +51,7 @@ class TestCreatePetKindergardenService:
             business_hours=business_hours,
             road_address=road_address,
             abbr_address=abbr_address,
+            detail_address=detail_address,
             short_address=short_address,
             guide_message=guide_message,
             latitude=latitude,
@@ -68,6 +70,7 @@ class TestCreatePetKindergardenService:
         assert pet_kindergarden.business_hours == business_hours
         assert pet_kindergarden.road_address == road_address
         assert pet_kindergarden.abbr_address == abbr_address
+        assert pet_kindergarden.detail_address == detail_address
         assert pet_kindergarden.short_address == short_address
         assert pet_kindergarden.guide_message == guide_message
         assert pet_kindergarden.latitude == latitude

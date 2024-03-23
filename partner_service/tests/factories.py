@@ -105,6 +105,7 @@ class PetKindergardenFactory(factory.django.DjangoModelFactory):
     business_hours = FuzzyChoice(choices=["09:00 ~ 06:00", "10:00 ~ 07:00", "11:00 ~ 08:00"])
     road_address = factory.LazyAttribute(lambda _: faker.address())
     abbr_address = factory.LazyAttribute(lambda _: faker.address())
+    detail_address = factory.LazyAttribute(lambda _: faker.address())
     short_address = factory.LazyAttribute(lambda _: [faker.address() for _ in range(10)])
     guide_message = factory.LazyAttribute(lambda _: faker.text())
     latitude = factory.LazyAttribute(lambda _: faker.latitude())
