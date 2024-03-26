@@ -44,6 +44,11 @@ class UserService:
         # 소셜 아이디로 유저 조회
         user = self.user_selector.get_user_by_social_id(social_id)
 
+        # 카카오 로그인 시 전화번호가 변경되었을 경우 업데이트
+        if user is not None and user.phone_number != phone_number:
+            user.phone_number = phone_number
+            user.save(update_fields=["phone_number"])
+
         # 유저가 존재하지 않을 경우 생성
         if user is None:
             user = User.objects.create_social_user(

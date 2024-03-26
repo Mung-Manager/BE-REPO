@@ -68,3 +68,26 @@ class TestCreateSocialUser:
         )
 
         assert user == active_partner_user
+
+    def test_create_social_user_success_phone_number_update(self, active_partner_user):
+        """소셜 유저 생성 성공 테스트 (이미 존재하는 유저, 전화번호 변경)
+
+        Args:
+            active_partner_user : 활성화된 사장님 유저입니다.
+        """
+        phone_number = "010-1234-1234"
+
+        user = self.user_service.create_social_user(
+            email=active_partner_user.email,
+            name=active_partner_user.name,
+            gender=active_partner_user.gender,
+            social_id=active_partner_user.social_id,
+            phone_number=phone_number,
+            birth=active_partner_user.birth,
+            social_provider=active_partner_user.user_social_provider_id,
+        )
+
+        active_partner_user.refresh_from_db()
+
+        assert user == active_partner_user
+        assert user.phone_number == phone_number
