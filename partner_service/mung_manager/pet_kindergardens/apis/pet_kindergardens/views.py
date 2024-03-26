@@ -48,8 +48,6 @@ class PetKindergardenListView(APIAuthMixin, APIView):
         detail_address = serializers.CharField(required=False, max_length=128, allow_blank=True, default="")
         short_address = serializers.ListField(required=True, child=serializers.CharField(max_length=128), max_length=10)
         guide_message = serializers.CharField(required=False, allow_blank=True, default="")
-        latitude = serializers.FloatField(required=True, min_value=-90, max_value=90)
-        longitude = serializers.FloatField(required=True, min_value=-180, max_value=180)
         reservation_available_option = serializers.ChoiceField(
             required=True, choices=[options.value for options in ReservationAvailableOption]
         )
@@ -69,8 +67,6 @@ class PetKindergardenListView(APIAuthMixin, APIView):
         detail_address = serializers.CharField()
         short_address = serializers.ListField(child=serializers.CharField())
         guide_message = serializers.CharField()
-        latitude = serializers.FloatField()
-        longitude = serializers.FloatField()
         reservation_available_option = serializers.ChoiceField(choices=[options.value for options in ReservationAvailableOption])
         reservation_cancle_option = serializers.ChoiceField(choices=[options.value for options in ReservationCancleOption])
         daily_pet_limit = serializers.IntegerField()
@@ -101,8 +97,6 @@ class PetKindergardenListView(APIAuthMixin, APIView):
                 detail_address (str): 상세 주소
                 short_address (List[str]): 간단 주소
                 guide_message (str): 안내 메시지
-                latitude (float): 위도
-                longitude (float): 경도
                 reservation_available_option (str): 예약 가능 옵션
                 reservation_cancle_option (str): 예약 취소 옵션
                 daily_pet_limit (int): 일일 펫 제한
@@ -120,8 +114,6 @@ class PetKindergardenListView(APIAuthMixin, APIView):
                 detail_address (str): 상세 주소
                 short_address (List[str]): 간단 주소
                 guide_message (str): 안내 메시지
-                latitude (float): 위도
-                longitude (float): 경도
                 reservation_available_option (str): 예약 가능 옵션
                 reservation_cancle_option (str): 예약 취소 옵션
                 daily_pet_limit (int): 일일 펫 제한
@@ -153,8 +145,6 @@ class PetKindergardenSearchView(APIAuthMixin, APIView):
         phone_number = serializers.CharField(source="tel")
         short_address = serializers.ListField(child=serializers.CharField())
         business_hours = serializers.CharField()
-        latitude = serializers.FloatField(source="y")
-        longitude = serializers.FloatField(source="x")
 
     @swagger_auto_schema(
         tags=["반려동물 유치원"],
@@ -185,8 +175,6 @@ class PetKindergardenSearchView(APIAuthMixin, APIView):
                 phone_number (str): 전화번호
                 short_address (List[str]): 간략 주소
                 business_hours (str): 영업시간
-                latitude (float): 위도
-                longitude (float): 경도
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)

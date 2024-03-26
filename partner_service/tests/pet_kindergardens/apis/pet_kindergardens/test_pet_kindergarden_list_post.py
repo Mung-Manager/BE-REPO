@@ -26,14 +26,20 @@ class TestPetKindergardenListPost(IsAuthenticateTestCase):
 
     url = reverse("api-pet-kindergardens:pet-kindergarden-list")
 
-    def test_pet_kindergarden_list_post_success(self, active_partner_user):
+    def test_pet_kindergarden_list_post_success(self, active_partner_user, mocker):
         """반려동물 유치원 리스트 POST 성공 테스트
 
         Args:
             active_partner_user : 활성화된 파트너 유저 객체입니다.
+            mocker : mocker 객체입니다.
         """
         access_token = self.obtain_token(active_partner_user)
         self.authenticate_with_token(access_token)
+
+        mocker.patch(
+            "mung_manager.pet_kindergardens.services.pet_kindergardens.PetKindergardenService._get_coordinates_by_road_address",
+            return_value=(90, 180),
+        )
 
         pet_kindergarden_data = {
             "name": "test",
@@ -47,8 +53,6 @@ class TestPetKindergardenListPost(IsAuthenticateTestCase):
             "detail_address": "서울특별시 강남구",
             "short_address": ["서울특별시 강남구"],
             "guide_message": "test",
-            "latitude": 90,
-            "longitude": 180,
             "reservation_available_option": ReservationAvailableOption.TODAY.value,
             "reservation_cancle_option": ReservationCancleOption.TODAY.value,
             "daily_pet_limit": 10,
@@ -70,8 +74,6 @@ class TestPetKindergardenListPost(IsAuthenticateTestCase):
         assert response.data["data"]["abbr_address"] == pet_kindergarden_data["abbr_address"]
         assert response.data["data"]["road_address"] == pet_kindergarden_data["road_address"]
         assert response.data["data"]["detail_address"] == pet_kindergarden_data["detail_address"]
-        assert response.data["data"]["latitude"] == pet_kindergarden_data["latitude"]
-        assert response.data["data"]["longitude"] == pet_kindergarden_data["longitude"]
         assert response.data["data"]["reservation_available_option"] == pet_kindergarden_data["reservation_available_option"]
         assert response.data["data"]["reservation_cancle_option"] == pet_kindergarden_data["reservation_cancle_option"]
         assert response.data["data"]["daily_pet_limit"] == pet_kindergarden_data["daily_pet_limit"]
@@ -98,11 +100,12 @@ class TestPetKindergardenListPost(IsAuthenticateTestCase):
         assert response.data["code"] == "permission_denied"
         assert response.data["message"] == "You do not have permission to perform this action."
 
-    def test_pet_kindergarden_list_post_fail_reservation_available_option_invalid_choice(self, active_partner_user):
+    def test_pet_kindergarden_list_post_fail_reservation_available_option_invalid_choice(self, active_partner_user, mocker):
         """반려동물 유치원 리스트 POST 실패 테스트 (예약 가능 옵션 선택지가 아닌 경우)
 
         Args:
             active_partner_user : 활성화된 파트너 유저 객체입니다.
+            mocker : mocker 객체입니다.
         """
         access_token = self.obtain_token(active_partner_user)
         self.authenticate_with_token(access_token)
@@ -119,8 +122,6 @@ class TestPetKindergardenListPost(IsAuthenticateTestCase):
             "detail_address": "서울특별시 강남구",
             "short_address": ["서울특별시 강남구"],
             "guide_message": "test",
-            "latitude": 90,
-            "longitude": 180,
             "reservation_available_option": "test",
             "reservation_cancle_option": ReservationCancleOption.TODAY.value,
             "daily_pet_limit": 10,

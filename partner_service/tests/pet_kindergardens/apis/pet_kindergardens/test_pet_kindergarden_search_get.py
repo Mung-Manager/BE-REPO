@@ -45,8 +45,6 @@ class TestPetKindergardenSearchGet(IsAuthenticateTestCase):
         assert response.data["data"]["results"][0]["phone_number"] == raw_pet_kindergarden.tel
         assert response.data["data"]["results"][0]["business_hours"] == raw_pet_kindergarden.business_hours
         assert response.data["data"]["results"][0]["short_address"] == raw_pet_kindergarden.short_address
-        assert response.data["data"]["results"][0]["latitude"] == float(raw_pet_kindergarden.y)
-        assert response.data["data"]["results"][0]["longitude"] == float(raw_pet_kindergarden.x)
 
     def test_pet_kindergarden_search_get_fail_not_authenticated(self):
         """반려동물 유치원 검색 GET 실패 테스트 (인증되지 않은 사용자)"""

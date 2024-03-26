@@ -19,7 +19,7 @@ class TestCreatePetKindergardenService:
     def setup_method(self):
         self.pet_kindergarden_service = PetKindergardenService()
 
-    def test_create_pet_kindergarden_success(self, active_partner_user):
+    def test_create_pet_kindergarden_success(self, active_partner_user, mocker):
         """반려동물 유치원 생성 성공 테스트
 
         Args:
@@ -36,11 +36,14 @@ class TestCreatePetKindergardenService:
         detail_address = "test"
         short_address = ["test"]
         guide_message = "test"
-        latitude = 1.0
-        longitude = 1.0
         reservation_available_option = ReservationAvailableOption.TODAY.value
         reservation_cancle_option = ReservationCancleOption.TODAY.value
         daily_pet_limit = 1
+
+        mocker.patch(
+            "mung_manager.pet_kindergardens.services.pet_kindergardens.PetKindergardenService._get_coordinates_by_road_address",
+            return_value=(90, 180),
+        )
 
         pet_kindergarden = self.pet_kindergarden_service.create_pet_kindergarden(
             user=active_partner_user,
@@ -54,8 +57,6 @@ class TestCreatePetKindergardenService:
             detail_address=detail_address,
             short_address=short_address,
             guide_message=guide_message,
-            latitude=latitude,
-            longitude=longitude,
             reservation_available_option=reservation_available_option,
             reservation_cancle_option=reservation_cancle_option,
             daily_pet_limit=daily_pet_limit,
@@ -73,8 +74,6 @@ class TestCreatePetKindergardenService:
         assert pet_kindergarden.detail_address == detail_address
         assert pet_kindergarden.short_address == short_address
         assert pet_kindergarden.guide_message == guide_message
-        assert pet_kindergarden.latitude == latitude
-        assert pet_kindergarden.longitude == longitude
         assert pet_kindergarden.reservation_available_option == reservation_available_option
         assert pet_kindergarden.reservation_cancle_option == reservation_cancle_option
         assert pet_kindergarden.daily_pet_limit == daily_pet_limit

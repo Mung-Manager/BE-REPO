@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.utils import timezone
 from mung_manager.common.exception.exceptions import AuthenticationFailedException
 from mung_manager.users.models import User
@@ -9,7 +11,7 @@ class AuthService:
     이 클래스는 인증과 관련된 비즈니스 로직을 담당합니다.
     """
 
-    def generate_token(self, user: User) -> tuple[str, str]:
+    def generate_token(self, user: User) -> Tuple[str, str]:
         """
         이 함수는 유저로 refresh_token과 access_token을 생성합니다.
 
@@ -17,7 +19,7 @@ class AuthService:
             user: 유저 객체입니다.
 
         Returns:
-            Union[str, str]: refresh_token, access_token입니다.
+            Tuple[str, str]: refresh_token, access_token입니다.
         """
         refresh_token = RefreshToken.for_user(user)
         return str(refresh_token), str(refresh_token.access_token)

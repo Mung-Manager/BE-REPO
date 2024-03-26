@@ -23,8 +23,8 @@ class PetKindergarden(TimeStampedModel):
     detail_address = models.CharField(max_length=128, verbose_name="상세 주소", blank=True)
     short_address = ArrayField(models.CharField(max_length=128), verbose_name="간단 주소", size=10)
     guide_message = models.TextField(verbose_name="안내 메시지", blank=True)
-    latitude = models.DecimalField(max_digits=13, decimal_places=10, verbose_name="위도")
-    longitude = models.DecimalField(max_digits=13, decimal_places=10, verbose_name="경도")
+    latitude = models.DecimalField(max_digits=8, decimal_places=6, verbose_name="위도")
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name="경도")
     point = PointField(verbose_name="위치 좌표")
     reservation_available_option = models.CharField(
         max_length=64, verbose_name="예약 가능 옵션", choices=[(o.value, o.name) for o in ReservationAvailableOption]
@@ -58,8 +58,8 @@ class RawPetKindergarden(models.Model):
     tel = models.CharField(max_length=16, db_column="tel")
     virtual_tel = models.CharField(max_length=16, blank=True, db_column="virtualTel")
     name = models.CharField(max_length=64, db_column="name")
-    x = models.DecimalField(max_digits=13, decimal_places=10, db_column="x")
-    y = models.DecimalField(max_digits=13, decimal_places=10, db_column="y")
+    x = models.DecimalField(max_digits=9, decimal_places=6, db_column="x")
+    y = models.DecimalField(max_digits=8, decimal_places=6, db_column="y")
     business_hours = models.CharField(max_length=64, db_column="businessHours")
     address = models.CharField(max_length=128, db_column="address")
     road_address = models.CharField(max_length=128, db_column="roadAddress")
